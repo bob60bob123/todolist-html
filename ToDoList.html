@@ -1532,6 +1532,7 @@
                 <button class="filter-tab" data-filter="byCreateTime" onclick="filterTodos('byCreateTime', event)">按创建时间</button>
                 <button class="filter-tab" data-filter="byCompletedTime" onclick="filterTodos('byCompletedTime', event)">按完成时间</button>
                 <button class="filter-tab" data-filter="byCategory" onclick="filterTodos('byCategory', event)">按分类</button>
+                <button class="filter-tab" data-filter="byPriority" onclick="filterTodos('byPriority', event)">按紧急程度</button>
             </div>
             <div class="search-wrapper">
                 <input type="text" id="searchInput" class="search-input" placeholder="搜索待办事项..." oninput="searchTodos(this.value)">
@@ -1548,12 +1549,14 @@
                         <div class="export-option" onclick="doExport('docx', 'completed')">已完成</div>
                         <div class="export-option" onclick="doExport('docx', 'byCreateTime')">按创建时间</div>
                         <div class="export-option" onclick="doExport('docx', 'byCompletedTime')">按完成时间</div>
+                        <div class="export-option" onclick="doExport('docx', 'byPriority')">按紧急程度</div>
                         <div class="export-divider"></div>
                         <div class="export-option" onclick="doExport('xlsx', 'all')">📊 导出Excel - 全部</div>
                         <div class="export-option" onclick="doExport('xlsx', 'active')">📊 导出Excel - 待完成</div>
                         <div class="export-option" onclick="doExport('xlsx', 'completed')">📊 导出Excel - 已完成</div>
                         <div class="export-option" onclick="doExport('xlsx', 'byCreateTime')">📊 导出Excel - 按创建时间</div>
                         <div class="export-option" onclick="doExport('xlsx', 'byCompletedTime')">📊 导出Excel - 按完成时间</div>
+                        <div class="export-option" onclick="doExport('xlsx', 'byPriority')">📊 导出Excel - 按紧急程度</div>
                     </div>
                 </div>
                 <button class="btn-icon" onclick="document.getElementById('importFile').click()">📤 导入</button>
@@ -2005,7 +2008,7 @@ function toggleTodo(id) {
         document.getElementById('totalCount').textContent = searchKeyword ? f.length : todos.length;
         document.getElementById('completedCount').textContent = todos.filter(t => t.completed).length;
         document.getElementById('remainingCount').textContent = todos.filter(t => !t.completed).length;
-        clearBtn.style.display = (todos.some(t => t.completed) && currentFilter !== 'byCreateTime' && currentFilter !== 'byCompletedTime') ? 'block' : 'none';
+        clearBtn.style.display = (todos.some(t => t.completed) && currentFilter !== 'byCreateTime' && currentFilter !== 'byCompletedTime' && currentFilter !== 'byPriority') ? 'block' : 'none';
 
         if (currentFilter === 'byCreateTime' || currentFilter === 'byCompletedTime') {
             renderTodosByDate(currentFilter);
@@ -2014,6 +2017,11 @@ function toggleTodo(id) {
 
         if (currentFilter === 'byCategory') {
             renderTodosByCategory();
+            return;
+        }
+
+        if (currentFilter === 'byPriority') {
+            renderTodosByPriority();
             return;
         }
 
@@ -2188,6 +2196,70 @@ function toggleTodo(id) {
 
             return `<div class="date-group">
                 <div class="date-group-header">📁 ${escapeHtml(cat)} (${grouped[cat].length})</div>
+                ${items}
+            </div>`;
+        }).join('');
+    }
+
+    function renderTodosByPriority() {
+        const list = document.getElementById('todoList');
+
+        let filteredTodos = todos;
+        if (searchKeyword) {
+            const kw = searchKeyword.toLowerCase();
+            filteredTodos = todos.filter(t => t.text.toLowerCase().includes(kw));
+        }
+
+        const grouped = { high: [], medium: [], low: [] };
+        filteredTodos.forEach(t => {
+            const p = t.priority || 'low';
+            if (!grouped[p]) grouped[p] = [];
+            grouped[p].push(t);
+        });
+
+        const plabels = { high: '十分紧急', medium: '较为紧急', low: '一般' };
+        const order = ['high', 'medium', 'low'];
+
+        if (grouped.high.length === 0 && grouped.medium.length === 0 && grouped.low.length === 0) {
+            const msg = searchKeyword ? '未找到匹配的待办事项' : '暂无待办事项';
+            list.innerHTML = `<div class="empty-state"><span class="icon">📋</span><div class="text">${msg}</div><div class="sub">${searchKeyword ? '试试其他关键词' : '开始添加待办吧'}</div></div>`;
+            return;
+        }
+
+        list.innerHTML = order.map(p => {
+            const items = grouped[p].map(todo => {
+                const ct = todo.createTime || todo.createdAt;
+                const cd = ct ? new Date(ct).toLocaleString('zh-CN', { year:'numeric', month:'2-digit', day:'2-digit', hour:'2-digit', minute:'2-digit' }).replace(/\//g, '-') : '';
+                const doneDate = todo.completedAt ? new Date(todo.completedAt).toLocaleString('zh-CN', { year:'numeric', month:'2-digit', day:'2-digit', hour:'2-digit', minute:'2-digit' }).replace(/\//g, '-') : '';
+                const cat = todo.category || '工作';
+                return `<div class="todo-item ${todo.completed ? 'completed' : ''}">
+                    <div class="checkbox" onclick="toggleTodo(${todo.id})">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+                    </div>
+                    <div class="todo-content">
+                        <div class="todo-text">${escapeHtml(todo.text)}</div>
+                        <div class="todo-meta">
+                            <span>创建：${cd}</span>
+                            <span class="todo-category" onclick="showCategoryEditor(${todo.id}, event)">📁 ${escapeHtml(cat)}</span>
+                            ${todo.completed ? `<span class="completed-date">✓ 完成：${doneDate}</span>` : ''}
+                        </div>
+                    </div>
+                    <span class="todo-priority priority-${todo.priority}" onclick="showPriorityEditor(${todo.id}, event)">${plabels[todo.priority]}</span>
+                    <select class="priority-editor" id="priority-editor-${todo.id}" onchange="changePriority(${todo.id}, this.value)" onblur="hidePriorityEditor(${todo.id})" style="display:none">
+                        <option value="low">一般</option>
+                        <option value="medium">较为紧急</option>
+                        <option value="high">十分紧急</option>
+                    </select>
+                    <select class="category-editor" id="category-editor-${todo.id}" onchange="changeCategory(${todo.id}, this.value)" onblur="hideCategoryEditor(${todo.id})" style="display:none">
+                        ${categories.map(c => `<option value="${escapeHtml(c)}">${escapeHtml(c)}</option>`).join('')}
+                    </select>
+                    <button class="delete-btn" onclick="deleteTodo(${todo.id})" title="删除">✕</button>
+                </div>`;
+            }).join('');
+
+            if (grouped[p].length === 0) return '';
+            return `<div class="date-group">
+                <div class="date-group-header priority-${p}">${plabels[p]} (${grouped[p].length})</div>
                 ${items}
             </div>`;
         }).join('');
