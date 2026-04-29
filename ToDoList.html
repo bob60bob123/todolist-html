@@ -1554,7 +1554,7 @@
 
         <div class="input-section">
             <div class="input-wrapper">
-                <textarea id="todoInput" placeholder="添加新的待办事项..." onkeypress="handleKeyPress(event)" rows="1"></textarea>
+                <textarea id="todoInput" class="todo-input" placeholder="" onkeypress="handleKeyPress(event)" rows="1"></textarea>
             </div>
             <select id="categorySelect" class="category-select">
                 <option value="default">工作</option>
@@ -1579,7 +1579,7 @@
                 <button class="filter-tab" data-filter="byPriority" onclick="filterTodos('byPriority', event)">按紧急程度</button>
             </div>
             <div class="search-wrapper">
-                <input type="text" id="searchInput" class="search-input" placeholder="搜索待办事项..." oninput="searchTodos(this.value)">
+                <input type="text" id="searchInput" class="search-input" placeholder="" oninput="searchTodos(this.value)">
                 <span class="search-icon">🔍</span>
                 <button class="search-clear" id="searchClear" onclick="clearSearch()" style="display:none">✕</button>
             </div>
@@ -1664,7 +1664,7 @@
         </div>
         <div class="modal-body">
             <div class="category-add">
-                <input type="text" id="newCategoryInput" class="category-input" placeholder="输入新分类名称..." onkeypress="handleCategoryKeyPress(event)">
+                <input type="text" id="newCategoryInput" class="category-input" placeholder="" onkeypress="handleCategoryKeyPress(event)">
                 <button class="btn-primary" onclick="addCategory()">添加</button>
             </div>
             <div class="category-list" id="categoryList"></div>
@@ -1772,7 +1772,7 @@
         if (!name) { input.focus(); return; }
         if (categories.includes(name)) {
             playSound('error');
-            alert('分类已存在');
+            alert(t('categoryExists'));
             return;
         }
         categories.push(name);
@@ -1786,7 +1786,7 @@
     function deleteCategory(name) {
         const count = todos.filter(t => t.category === name).length;
         if (count > 0) {
-            if (!confirm(`该分类下有 ${count} 个待办事项，确定要删除吗？`)) return;
+            if (!confirm(t('confirmDelete').replace('{count}', count))) return;
             todos.forEach(t => { if (t.category === name) t.category = '工作'; });
             saveTodos();
         }
@@ -1848,7 +1848,9 @@
             defaultCategory: '工作', confirmDelete: '该分类下有 {count} 个待办事项，确定要删除吗？',
             summaryEmpty: '还没有添加待办事项', summaryAllDone: '太棒了！全部完成！', summaryProgress: '已完成 {completed} 项，还剩 {remaining} 项，马上完成！', summaryRemind: '还有 {remaining} 项任务待完成',
             periodTab: '时间段',
-            summaryTitle: '工作总结', exportAll: '全部', exportActive: '待完成', exportCompleted: '已完成'
+            summaryTitle: '工作总结', exportAll: '全部', exportActive: '待完成', exportCompleted: '已完成',
+            alertNoExport: '暂无待办事项可导出', alertExportFail: '导出失败，请重试', alertImportSuccess: '成功导入 {cnt} 条待办事项！', alertImportFail: '导入失败，请检查文件格式',
+            copied: '已复制', copyBtnText: '复制汇报', noCategoryTodos: '暂无分类的待办事项'
         },
         en: {
             title: 'To-Do List',
@@ -1879,7 +1881,9 @@
             defaultCategory: 'Work', confirmDelete: 'This category has {count} to-dos. Delete anyway?',
             summaryEmpty: 'No to-dos added yet', summaryAllDone: 'Great! All done!', summaryProgress: '{completed} done, {remaining} to go, almost there!', summaryRemind: '{remaining} tasks remaining',
             periodTab: 'Period',
-            summaryTitle: 'Summary', exportAll: 'All', exportActive: 'Active', exportCompleted: 'Completed'
+            summaryTitle: 'Summary', exportAll: 'All', exportActive: 'Active', exportCompleted: 'Completed',
+            alertNoExport: 'No to-dos to export', alertExportFail: 'Export failed, please retry', alertImportSuccess: 'Successfully imported {cnt} to-dos!', alertImportFail: 'Import failed, please check file format',
+            copied: 'Copied', copyBtnText: 'Copy Report', noCategoryTodos: 'No to-dos in this category'
         }
     };
 
@@ -1898,6 +1902,8 @@
         document.querySelectorAll('.stat-label')[1].textContent = t('completed');
         document.querySelectorAll('.stat-label')[2].textContent = t('active');
         document.getElementById('todoInput').placeholder = t('addTodo');
+        document.getElementById('searchInput').placeholder = t('search');
+        document.getElementById('newCategoryInput').placeholder = t('newCategory');
         document.getElementById('prioritySelect').options[0].text = t('low');
         document.getElementById('prioritySelect').options[1].text = t('medium');
         document.getElementById('prioritySelect').options[2].text = t('high');
@@ -2126,7 +2132,7 @@ function toggleTodo(id) {
             et = todos;
         }
 
-        if (!et.length) { alert('暂无待办事项可导出'); return; }
+        if (!et.length) { alert(t('alertNoExport')); return; }
         if (format === 'xlsx') exportToExcel(et);
         else exportToDocx(et);
     }
@@ -2214,12 +2220,12 @@ function toggleTodo(id) {
         }
 
         if (f.length === 0) {
-            const msg = searchKeyword ? '未找到匹配的待办事项'
-                : currentPeriod === 'custom' ? '当天无待办事项'
-                : currentFilter === 'all' ? '暂无待办事项'
-                : currentFilter === 'active' ? '太棒了，所有事项都完成了！'
-                : '暂无已完成的事项';
-            list.innerHTML = `<div class="empty-state"><span class="icon">📋</span><div class="text">${msg}</div><div class="sub">${searchKeyword ? '试试其他关键词' : '添加一条新待办开始吧'}</div></div>`;
+            const msg = searchKeyword ? t('noMatch')
+                : currentPeriod === 'custom' ? (currentLang === 'zh' ? '当天无待办事项' : 'No to-dos for this day')
+                : currentFilter === 'all' ? t('noTodos')
+                : currentFilter === 'active' ? t('allDone')
+                : t('noCompleted');
+            list.innerHTML = `<div class="empty-state"><span class="icon">📋</span><div class="text">${msg}</div><div class="sub">${searchKeyword ? t('tryOther') : t('addFirst')}</div></div>`;
             return;
         }
 
@@ -2258,7 +2264,7 @@ function toggleTodo(id) {
     function renderTodosByDate(filter) {
         const list = document.getElementById('todoList');
         const byTime = filter === 'byCreateTime' ? 'createTime' : 'completedAt';
-        const label = filter === 'byCreateTime' ? '创建' : '完成';
+        const label = filter === 'byCreateTime' ? t('filterByCreate').replace('按', '') : t('filterByComplete').replace('按', '');
 
         let filteredTodos = todos;
         if (searchKeyword) {
@@ -2276,12 +2282,12 @@ function toggleTodo(id) {
             grouped[key].push(t);
         });
 
-        const plabels = { high: '十分紧急', medium: '较为紧急', low: '一般' };
+        const plabels = { high: t('high'), medium: t('medium'), low: t('low') };
         const sortedKeys = Object.keys(grouped).sort((a, b) => new Date(b) - new Date(a));
 
         if (sortedKeys.length === 0) {
-            const msg = searchKeyword ? '未找到匹配的待办事项' : `暂无${label}的事项`;
-            list.innerHTML = `<div class="empty-state"><span class="icon">📋</span><div class="text">${msg}</div><div class="sub">${searchKeyword ? '试试其他关键词' : '开始添加待办吧'}</div></div>`;
+            const msg = searchKeyword ? t('noMatch') : `${t('noTodos').replace('暂无', '暂无')}`;
+            list.innerHTML = `<div class="empty-state"><span class="icon">📋</span><div class="text">${msg}</div><div class="sub">${searchKeyword ? t('tryOther') : t('addFirst')}</div></div>`;
             return;
         }
 
@@ -2343,12 +2349,12 @@ function toggleTodo(id) {
             grouped[cat].push(t);
         });
 
-        const plabels = { high: '十分紧急', medium: '较为紧急', low: '一般' };
-        const sortedKeys = Object.keys(grouped).sort((a, b) => a === '工作' ? -1 : b === '工作' ? 1 : a.localeCompare(b));
+        const plabels = { high: t('high'), medium: t('medium'), low: t('low') };
+        const sortedKeys = Object.keys(grouped).sort((a, b) => a === t('defaultCategory') ? -1 : b === t('defaultCategory') ? 1 : a.localeCompare(b));
 
         if (sortedKeys.length === 0) {
-            const msg = searchKeyword ? '未找到匹配的待办事项' : '暂无分类的待办事项';
-            list.innerHTML = `<div class="empty-state"><span class="icon">📋</span><div class="text">${msg}</div><div class="sub">${searchKeyword ? '试试其他关键词' : '开始添加待办吧'}</div></div>`;
+            const msg = searchKeyword ? t('noMatch') : t('noCategoryTodos');
+            list.innerHTML = `<div class="empty-state"><span class="icon">📋</span><div class="text">${msg}</div><div class="sub">${searchKeyword ? t('tryOther') : t('addFirst')}</div></div>`;
             return;
         }
 
@@ -2409,8 +2415,8 @@ function toggleTodo(id) {
         const order = ['high', 'medium', 'low'];
 
         if (grouped.high.length === 0 && grouped.medium.length === 0 && grouped.low.length === 0) {
-            const msg = searchKeyword ? '未找到匹配的待办事项' : '暂无待办事项';
-            list.innerHTML = `<div class="empty-state"><span class="icon">📋</span><div class="text">${msg}</div><div class="sub">${searchKeyword ? '试试其他关键词' : '开始添加待办吧'}</div></div>`;
+            const msg = searchKeyword ? t('noMatch') : t('noTodos');
+            list.innerHTML = `<div class="empty-state"><span class="icon">📋</span><div class="text">${msg}</div><div class="sub">${searchKeyword ? t('tryOther') : t('addFirst')}</div></div>`;
             return;
         }
 
@@ -2559,7 +2565,7 @@ function toggleTodo(id) {
         let et = todos;
         if (currentFilter === 'active') et = todos.filter(t => !t.completed);
         else if (currentFilter === 'completed') et = todos.filter(t => t.completed);
-        if (!et.length) { alert('暂无待办事项可导出'); return; }
+        if (!et.length) { alert(t('alertNoExport')); return; }
         if (format === 'xlsx') exportToExcel(et);
         else exportToDocx(et);
     }
@@ -2608,7 +2614,7 @@ function toggleTodo(id) {
             a.href = url; a.download = `待办清单_${fds}.docx`;
             a.click(); URL.revokeObjectURL(url);
             playSound('complete');
-        }).catch(() => alert('导出失败，请重试'));
+        }).catch(() => alert(t('alertExportFail')));
     }
 
     function importTodoList(event) {
@@ -2631,9 +2637,9 @@ function toggleTodo(id) {
                     cnt++;
                 }
                 saveTodos(); renderTodos(); renderSummary();
-                alert(`成功导入 ${cnt} 条待办事项！`);
+                alert(t('alertImportSuccess').replace('{cnt}', cnt));
                 playSound('add');
-            } catch(err) { playSound('error'); alert('导入失败，请检查文件格式'); }
+            } catch(err) { playSound('error'); alert(t('alertImportFail')); }
         };
         reader.readAsArrayBuffer(file);
         event.target.value = '';
@@ -2692,10 +2698,10 @@ function copyReport() {
         const t = document.getElementById('reportText').textContent;
         navigator.clipboard.writeText(t).then(() => {
             const btn = document.getElementById('copyBtn');
-            btn.textContent = '✅ 已复制';
+            btn.textContent = `✅ ${t('copied')}`;
             btn.classList.add('copied');
             playSound('complete');
-            setTimeout(() => { btn.textContent = '📋 复制汇报'; btn.classList.remove('copied'); }, 2000);
+            setTimeout(() => { btn.textContent = `📋 ${t('copyBtnText')}`; btn.classList.remove('copied'); }, 2000);
         }).catch(() => {
             const ta = document.createElement('textarea');
             ta.value = t; document.body.appendChild(ta); ta.select();
@@ -2737,7 +2743,7 @@ function copyReport() {
             a.href = url; a.download = `工作汇报_${fds}.docx`;
             a.click(); URL.revokeObjectURL(url);
             playSound('complete');
-        }).catch(() => alert('导出失败，请重试'));
+        }).catch(() => alert(t('alertExportFail')));
     }
 
     function closeReportModal() {
