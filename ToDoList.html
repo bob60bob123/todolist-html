@@ -1830,6 +1830,12 @@
             import: '导入',
             clearCompleted: '清除已完成',
             reportTitle: '工作汇报', exportDocx: '导出DOCX', copyReport: '复制汇报',
+            generateReport: '生成工作汇报',
+            reportOverview: '工作概况', reportCompleted: '完成情况', reportRemaining: '待推进事项', reportSummary: '工作小结',
+            reportTotal: '共安排 {total} 项任务，已完成 {completed} 项，完成率 {rate}%。', reportEmpty: '暂无安排工作。',
+            reportAllComplete: '任务全部完成！', reportMostComplete: '大部分任务已完成，剩余事项需尽快推进。',
+            reportHalfComplete: '任务完成过半，需加强时间管理。', reportLowComplete: '完成率偏低，需优化工作方法。', reportNotStarted: '任务尚未启动，需尽快开始。',
+            priorityHigh: '十分紧急事项', priorityMed: '较为紧急事项', priorityLow: '一般事项',
             categoryManager: '管理分类', newCategory: '输入新分类名称...', categoryExists: '分类已存在',
             delete: '删除', cancel: '取消',
             noTodos: '暂无待办事项', allDone: '太棒了，所有事项都完成了！', noCompleted: '暂无已完成的事项',
@@ -1839,7 +1845,9 @@
             filterByCreate: '按创建时间', filterByComplete: '按完成时间', filterByCategory: '按分类', filterByPriority: '按紧急程度',
             periodPast1d: '过去1日', periodPast2d: '过去2日', periodPast3d: '过去3日', periodPastweek: '过去一周',
             periodDay: '今日', periodWeek: '本周', periodMonth: '本月', periodQuarter: '本季', periodYear: '本年',
-            defaultCategory: '工作', confirmDelete: '该分类下有 {count} 个待办事项，确定要删除吗？'
+            defaultCategory: '工作', confirmDelete: '该分类下有 {count} 个待办事项，确定要删除吗？',
+            summaryEmpty: '还没有添加待办事项', summaryAllDone: '太棒了！全部完成！', summaryProgress: '已完成 {completed} 项，还剩 {remaining} 项，马上完成！', summaryRemind: '还有 {remaining} 项任务待完成',
+            periodTab: '时间段'
         },
         en: {
             title: 'To-Do List',
@@ -1852,6 +1860,12 @@
             import: 'Import',
             clearCompleted: 'Clear Completed',
             reportTitle: 'Work Report', exportDocx: 'Export DOCX', copyReport: 'Copy Report',
+            generateReport: 'Generate Report',
+            reportOverview: 'Overview', reportCompleted: 'Completed', reportRemaining: 'Remaining', reportSummary: 'Summary',
+            reportTotal: '{total} tasks scheduled, {completed} completed, {rate}% completion rate.', reportEmpty: 'No tasks scheduled.',
+            reportAllComplete: 'All tasks completed!', reportMostComplete: 'Most tasks completed, push the remaining items.',
+            reportHalfComplete: 'Half tasks completed, need better time management.', reportLowComplete: 'Low completion rate, need to improve work methods.', reportNotStarted: 'Tasks not started yet, need to begin soon.',
+            priorityHigh: 'Critical', priorityMed: 'Urgent', priorityLow: 'Normal',
             categoryManager: 'Manage Categories', newCategory: 'Enter new category...', categoryExists: 'Category already exists',
             delete: 'Delete', cancel: 'Cancel',
             noTodos: 'No to-dos yet', allDone: 'Great, all tasks completed!', noCompleted: 'No completed items',
@@ -1861,7 +1875,9 @@
             filterByCreate: 'By Create Time', filterByComplete: 'By Complete Time', filterByCategory: 'By Category', filterByPriority: 'By Priority',
             periodPast1d: 'Past 1 Day', periodPast2d: 'Past 2 Days', periodPast3d: 'Past 3 Days', periodPastweek: 'Past Week',
             periodDay: 'Today', periodWeek: 'This Week', periodMonth: 'This Month', periodQuarter: 'This Quarter', periodYear: 'This Year',
-            defaultCategory: 'Work', confirmDelete: 'This category has {count} to-dos. Delete anyway?'
+            defaultCategory: 'Work', confirmDelete: 'This category has {count} to-dos. Delete anyway?',
+            summaryEmpty: 'No to-dos added yet', summaryAllDone: 'Great! All done!', summaryProgress: '{completed} done, {remaining} to go, almost there!', summaryRemind: '{remaining} tasks remaining',
+            periodTab: 'Period'
         }
     };
 
@@ -1890,6 +1906,7 @@
         document.getElementById('reportModalTitle').textContent = `📋 ${t('reportTitle')}`;
         document.getElementById('exportReportBtn').textContent = `📄 ${t('exportDocx')}`;
         document.getElementById('copyBtn').textContent = `📋 ${t('copyReport')}`;
+        document.querySelector('.report-btn-text').textContent = t('generateReport');
         document.querySelector('#categoryManager h3').textContent = `⚙️ ${t('categoryManager')}`;
         document.getElementById('newCategoryInput').placeholder = t('newCategory');
         document.querySelector('#categoryManager .btn-primary').textContent = t('add');
@@ -2433,18 +2450,18 @@ function toggleTodo(id) {
         const cLow = ptodos.filter(t => t.completed && t.priority === 'low').length;
 
         let emoji, msg;
-        if (total === 0) { emoji = '✨'; msg = '还没有添加待办事项'; }
-        else if (progress === 100) { emoji = '🎉'; msg = '太棒了！全部完成！'; }
-        else if (progress >= 70) { emoji = '💪'; msg = `已完成 ${completed} 项，还剩 ${remaining} 项，马上完成！`; }
-        else if (progress >= 40) { emoji = '🚀'; msg = `已完成 ${completed} 项，稳步推进中！`; }
-        else if (progress > 0) { emoji = '📈'; msg = `已完成 ${completed} 项，开了个好头！`; }
-        else { emoji = '🎯'; msg = `${remaining} 项任务待完成`; }
+        if (total === 0) { emoji = '✨'; msg = t('summaryEmpty'); }
+        else if (progress === 100) { emoji = '🎉'; msg = t('summaryAllDone'); }
+        else if (progress >= 70) { emoji = '💪'; msg = t('summaryProgress').replace('{completed}', completed).replace('{remaining}', remaining); }
+        else if (progress >= 40) { emoji = '🚀'; msg = t('summaryProgress').replace('{completed}', completed).replace('{remaining}', remaining); }
+        else if (progress > 0) { emoji = '📈'; msg = t('summaryProgress').replace('{completed}', completed).replace('{remaining}', remaining); }
+        else { emoji = '🎯'; msg = t('summaryRemind').replace('{remaining}', remaining); }
 
-        const pLabels = { past1d: '过去1日', past2d: '过去2日', past3d: '过去3日', pastweek: '过去一周', day: '今日', week: '本周', month: '本月', quarter: '本季', year: '本年' };
+        const pLabels = { past1d: t('periodPast1d'), past2d: t('periodPast2d'), past3d: t('periodPast3d'), pastweek: t('periodPastweek'), day: t('periodDay'), week: t('periodWeek'), month: t('periodMonth'), quarter: t('periodQuarter'), year: t('periodYear') };
 
         container.innerHTML = `
             <div class="summary-section">
-                <div class="summary-section-title">📈 完成进度 · ${pLabels[currentPeriod] || ''}</div>
+                <div class="summary-section-title">📈 ${t('periodTab')} · ${pLabels[currentPeriod] || ''}</div>
                 <div class="progress-wrap">
                     <div class="progress-bar-bg"><div class="progress-bar" style="width:${progress}%"></div></div>
                     <div class="progress-label">${completed} / ${total} (${progress}%)</div>
@@ -2452,26 +2469,26 @@ function toggleTodo(id) {
             </div>
             <div class="summary-section">
                 <div class="summary-stats">
-                    <div class="summary-stat-box accent"><div class="num">${completed}</div><div class="label">已完成</div></div>
-                    <div class="summary-stat-box"><div class="num">${remaining}</div><div class="label">待完成</div></div>
+                    <div class="summary-stat-box accent"><div class="num">${completed}</div><div class="label">${t('completed')}</div></div>
+                    <div class="summary-stat-box"><div class="num">${remaining}</div><div class="label">${t('active')}</div></div>
                 </div>
             </div>
             ${remaining > 0 ? `
             <div class="summary-section">
-                <div class="summary-section-title">⚡ 待办优先级</div>
+                <div class="summary-section-title">⚡ ${t('filterByPriority')}</div>
                 <div class="priority-summary">
-                    <div class="priority-badge high"><span class="num">${highP}</span><span class="label">十分紧急</span></div>
-                    <div class="priority-badge medium"><span class="num">${medP}</span><span class="label">较为紧急</span></div>
-                    <div class="priority-badge low"><span class="num">${lowP}</span><span class="label">一般</span></div>
+                    <div class="priority-badge high"><span class="num">${highP}</span><span class="label">${t('high')}</span></div>
+                    <div class="priority-badge medium"><span class="num">${medP}</span><span class="label">${t('medium')}</span></div>
+                    <div class="priority-badge low"><span class="num">${lowP}</span><span class="label">${t('low')}</span></div>
                 </div>
             </div>` : ''}
             ${completed > 0 ? `
             <div class="summary-section">
-                <div class="summary-section-title">✅ 已完成</div>
+                <div class="summary-section-title">✅ ${t('completed')}</div>
                 <div class="summary-list">
-                    ${cHigh > 0 ? `<div class="summary-list-item"><span>🔴</span><span class="text">十分紧急</span><span class="count">${cHigh} 项</span></div>` : ''}
-                    ${cMed > 0 ? `<div class="summary-list-item"><span>🟠</span><span class="text">较为紧急</span><span class="count">${cMed} 项</span></div>` : ''}
-                    ${cLow > 0 ? `<div class="summary-list-item"><span>🟢</span><span class="text">一般</span><span class="count">${cLow} 项</span></div>` : ''}
+                    ${cHigh > 0 ? `<div class="summary-list-item"><span>🔴</span><span class="text">${t('high')}</span><span class="count">${cHigh} ${currentLang === 'zh' ? '项' : ''}</span></div>` : ''}
+                    ${cMed > 0 ? `<div class="summary-list-item"><span>🟠</span><span class="text">${t('medium')}</span><span class="count">${cMed} ${currentLang === 'zh' ? '项' : ''}</span></div>` : ''}
+                    ${cLow > 0 ? `<div class="summary-list-item"><span>🟢</span><span class="text">${t('low')}</span><span class="count">${cLow} ${currentLang === 'zh' ? '项' : ''}</span></div>` : ''}
                 </div>
             </div>` : ''}
             <div class="summary-section">
@@ -2479,7 +2496,7 @@ function toggleTodo(id) {
                     <span class="emoji">${emoji}</span>
                     <div class="text">${msg}</div>
                 </div>
-                <button class="btn-report" onclick="generateReport()">📋 生成工作汇报</button>
+                <button class="btn-report" onclick="generateReport()">📋 <span class="report-btn-text">生成工作汇报</span></button>
             </div>`;
     }
 
@@ -2602,43 +2619,46 @@ function toggleTodo(id) {
         const completed = ptodos.filter(t => t.completed);
         const remaining = ptodos.filter(t => !t.completed);
         const total = ptodos.length;
-        const pLabels = { past1d:'过去1日', past2d:'过去2日', past3d:'过去3日', pastweek:'过去一周', day:'今日', week:'本周', month:'本月', quarter:'本季', year:'本年' };
+        const pLabels = { past1d:t('periodPast1d'), past2d:t('periodPast2d'), past3d:t('periodPast3d'), pastweek:t('periodPastweek'), day:t('periodDay'), week:t('periodWeek'), month:t('periodMonth'), quarter:t('periodQuarter'), year:t('periodYear') };
         const now = new Date();
         let dateStr;
-        if (currentPeriod==='day') dateStr=`${now.getFullYear()}年${now.getMonth()+1}月${now.getDate()}日`;
-        else if (currentPeriod==='week') { const r=getPeriodRange('week'); dateStr=`${r.start.getMonth()+1}月${r.start.getDate()}日-${r.end.getMonth()+1}月${r.end.getDate()}日`; }
-        else if (currentPeriod==='month') dateStr=`${now.getFullYear()}年${now.getMonth()+1}月`;
-        else if (currentPeriod==='quarter') dateStr=`${now.getFullYear()}年第${Math.floor(now.getMonth()/3)+1}季度`;
-        else dateStr=`${now.getFullYear()}年`;
+        const opts = currentLang === 'zh' ? { year:'numeric', month:'long', day:'numeric' } : { year:'numeric', month:'long', day:'numeric' };
+        if (currentPeriod==='day') dateStr = now.toLocaleDateString(currentLang === 'zh' ? 'zh-CN' : 'en-US', opts);
+        else if (currentPeriod==='week') { const r=getPeriodRange('week'); dateStr=`${r.start.toLocaleDateString(currentLang === 'zh' ? 'zh-CN' : 'en-US', { month:'numeric', day:'numeric' })}-${r.end.toLocaleDateString(currentLang === 'zh' ? 'zh-CN' : 'en-US', { month:'numeric', day:'numeric' })}`; }
+        else if (currentPeriod==='month') dateStr = now.toLocaleDateString(currentLang === 'zh' ? 'zh-CN' : 'en-US', { year:'numeric', month:'long' });
+        else if (currentPeriod==='quarter') dateStr = `${now.getFullYear()}${currentLang === 'zh' ? '年第' : ' Q'}${Math.floor(now.getMonth()/3)+1}${currentLang === 'zh' ? '季度' : ''}`;
+        else dateStr = now.getFullYear().toString();
 
         const cHigh = completed.filter(t=>t.priority==='high');
         const cMed = completed.filter(t=>t.priority==='medium');
         const cLow = completed.filter(t=>t.priority==='low');
 
-        let report = `【${dateStr} ${pLabels[currentPeriod]}工作汇报】\n\n`;
-        if (total===0) report += `一、工作概况\n${pLabels[currentPeriod]}暂无安排工作。\n`;
+        const rate = total > 0 ? Math.round(completed.length/total*100) : 0;
+        let report = `${dateStr} ${pLabels[currentPeriod]}${t('reportTitle')}\n\n`;
+        if (total===0) report += `${t('reportOverview')}\n${pLabels[currentPeriod]}${t('reportEmpty')}\n`;
         else {
-            report += `一、工作概况\n${pLabels[currentPeriod]}共安排 ${total} 项任务，已完成 ${completed.length} 项，完成率 ${total>0?Math.round(completed.length/total*100):0}%。\n`;
+            report += `${t('reportOverview')}\n${t('reportTotal').replace('{total}', total).replace('{completed}', completed.length).replace('{rate}', rate)}。\n`;
             if (completed.length>0) {
-                report += `\n二、完成情况\n`;
-                if (cHigh.length>0) { report+=`\n1. 十分紧急事项（${cHigh.length}项）\n`; cHigh.forEach(i=>report+=`   ✓ ${i.text}\n`); }
-                if (cMed.length>0) { report+=`\n2. 较为紧急事项（${cMed.length}项）\n`; cMed.forEach(i=>report+=`   ✓ ${i.text}\n`); }
-                if (cLow.length>0) { report+=`\n3. 一般事项（${cLow.length}项）\n`; cLow.forEach(i=>report+=`   ✓ ${i.text}\n`); }
+                report += `\n${t('reportCompleted')}\n`;
+                if (cHigh.length>0) { report+=`\n1. ${t('priorityHigh')}（${cHigh.length}）\n`; cHigh.forEach(i=>report+=`   ✓ ${i.text}\n`); }
+                if (cMed.length>0) { report+=`\n2. ${t('priorityMed')}（${cMed.length}）\n`; cMed.forEach(i=>report+=`   ✓ ${i.text}\n`); }
+                if (cLow.length>0) { report+=`\n3. ${t('priorityLow')}（${cLow.length}）\n`; cLow.forEach(i=>report+=`   ✓ ${i.text}\n`); }
             }
             if (remaining.length>0) {
-                report += `\n三、待推进事项（${remaining.length}项）\n`;
-                remaining.forEach((i,idx)=>report+=`${idx+1}. ${i.priority==='high'?'[十分紧急]':i.priority==='medium'?'[较为紧急]':'[一般]'} ${i.text}\n`);
+                report += `\n${t('reportRemaining')}（${remaining.length}）\n`;
+                const pLabels2 = { high: t('high'), medium: t('medium'), low: t('low') };
+                remaining.forEach((i,idx)=>report+=`${idx+1}. [${pLabels2[i.priority]}] ${i.text}\n`);
             }
             const prog = completed.length/total*100;
-            report += `\n四、工作小结\n`;
-            if (prog===100) report += `${pLabels[currentPeriod]}任务全部完成！`;
-            else if (prog>=70) report += `${pLabels[currentPeriod]}大部分任务已完成，剩余事项需尽快推进。`;
-            else if (prog>=40) report += `${pLabels[currentPeriod]}任务完成过半，需加强时间管理。`;
-            else if (prog>0) report += `${pLabels[currentPeriod]}完成率偏低，需优化工作方法。`;
-            else report += `${pLabels[currentPeriod]}任务尚未启动，需尽快开始。`;
+            report += `\n${t('reportSummary')}\n`;
+            if (prog===100) report += t('reportAllComplete');
+            else if (prog>=70) report += t('reportMostComplete');
+            else if (prog>=40) report += t('reportHalfComplete');
+            else if (prog>0) report += t('reportLowComplete');
+            else report += t('reportNotStarted');
         }
 
-        document.getElementById('reportModalTitle').textContent = `📋 ${dateStr} 工作汇报`;
+        document.getElementById('reportModalTitle').textContent = `📋 ${dateStr} ${pLabels[currentPeriod]}${t('reportTitle')}`;
         document.getElementById('reportText').textContent = report;
         document.getElementById('reportModal').classList.add('show');
     }
