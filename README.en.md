@@ -4,18 +4,18 @@
 
 ---
 
-## About
+## Overview
 
 A single-file HTML ToDo application with Chinese UI. No build system, no framework dependencies.
 
-**Online Demo**: Open `ToDoList.html` directly in your browser.
+**Demo**: Open `ToDoList.html` directly in your browser.
 
 ## Features
 
 - CRUD operations with priority levels (十分紧急 / 较为紧急 / 一般)
 - Custom categories
-- Period statistics (day, week, month, quarter, year)
-- Filter by: all, active, completed, create time, completion time, category
+- Period statistics (today, this week, this month, this quarter, this year)
+- Filter by: all, active, completed, by creation time, by completion time, by category
 - Real-time search
 - Export to DOCX / Excel
 - Import from Excel
@@ -26,10 +26,14 @@ A single-file HTML ToDo application with Chinese UI. No build system, no framewo
 ## Quick Start
 
 ```bash
-# Open directly in browser
+# macOS
 open ToDoList.html
-# or
+
+# Windows
 start ToDoList.html
+
+# Linux
+xdg-open ToDoList.html
 ```
 
 ## Data Storage
