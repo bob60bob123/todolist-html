@@ -261,7 +261,8 @@
             position: relative;
         }
 
-        .input-section input {
+        .input-section input,
+        .input-section textarea {
             width: 100%;
             padding: 14px 18px;
             border: 1.5px solid var(--border);
@@ -272,15 +273,19 @@
             transition: var(--transition);
             background: var(--bg-primary);
             color: var(--text-primary);
+            resize: vertical;
+            min-height: 54px;
         }
 
-        .input-section input:focus {
+        .input-section input:focus,
+        .input-section textarea:focus {
             border-color: var(--primary);
             background: var(--surface-solid);
             box-shadow: 0 0 0 4px var(--primary-light);
         }
 
-        .input-section input::placeholder { color: var(--text-tertiary); }
+        .input-section input::placeholder,
+        .input-section textarea::placeholder { color: var(--text-tertiary); }
 
         .priority-select {
             padding: 14px 40px 14px 16px;
@@ -1504,7 +1509,7 @@
 
         <div class="input-section">
             <div class="input-wrapper">
-                <input type="text" id="todoInput" placeholder="添加新的待办事项..." onkeypress="handleKeyPress(event)">
+                <textarea id="todoInput" placeholder="添加新的待办事项..." onkeypress="handleKeyPress(event)" rows="1"></textarea>
             </div>
             <select id="categorySelect" class="category-select">
                 <option value="default">工作</option>
@@ -1834,7 +1839,7 @@
         playSound('add');
     }
 
-    function handleKeyPress(e) { if (e.key === 'Enter') addTodo(); }
+    function handleKeyPress(e) { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); addTodo(); } }
 
 function toggleTodo(id) {
         const todo = todos.find(t => t.id === id);
