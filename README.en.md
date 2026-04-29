@@ -1,6 +1,6 @@
 # ToDo List
 
-[中文](README.md) / [English](README.en.md) / [日本語](README.ja.md) / [한국어](README.ko.md) / [Deutsch](README.de.md) / [Français](README.fr.md)
+[中文](README.md) / [English](README.en.md) / [日本語](README.ja.md)
 
 ---
 
@@ -22,7 +22,6 @@ A single-file HTML ToDo application with Chinese UI. No build system, no framewo
 - Work report generation
 - Sound effects
 - Responsive design
-- **Multi-language UI** (Chinese, English, Japanese, Korean, German, French)
 
 ## Quick Start
 

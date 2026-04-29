@@ -1,6 +1,6 @@
 # ToDo List
 
-[中文](README.md) / [English](README.en.md) / [日本語](README.ja.md) / [한국어](README.ko.md) / [Deutsch](README.de.md) / [Français](README.fr.md)
+[中文](README.md) / [English](README.en.md) / [日本語](README.ja.md)
 
 ---
 
@@ -22,7 +22,6 @@
 - 作業レポート生成
 - 音效
 - レスポンシブデザイン
-- **多言語UI**（中国語、英語、日本語、韓国語、ドイツ語、フランス語）
 
 ## 使い方
 
