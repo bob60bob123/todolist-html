@@ -1,6 +1,6 @@
 # 待办事项 ToDo List
 
-[中文](README.md) / [English](README.en.md) / [日本語](README.ja.md)
+[中文](README.md) / [English](README.en.md) / [日本語](README.ja.md) / [한국어](README.ko.md) / [Deutsch](README.de.md) / [Français](README.fr.md)
 
 ---
 
@@ -22,6 +22,7 @@
 - 工作汇报生成
 - 音效反馈
 - 响应式设计
+- **多语言界面**（中文、英文、日文、韩文、德文、法文）
 
 ## 快速开始
 

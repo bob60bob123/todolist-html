@@ -1,30 +1,30 @@
-# ToDo List
+# Liste de tâches ToDo List
 
 [中文](README.md) / [English](README.en.md) / [日本語](README.ja.md) / [한국어](README.ko.md) / [Deutsch](README.de.md) / [Français](README.fr.md)
 
 ---
 
-## Overview
+## Vue d'ensemble
 
-A single-file HTML ToDo application with Chinese UI. No build system, no framework dependencies.
+Une application de liste de tâches HTML mono-fichier avec interface chinoise. Pas de système de build, pas de dépendances de framework.
 
-**Demo**: Open `ToDoList.html` directly in your browser.
+**Démo**: Ouvrez `ToDoList.html` directement dans votre navigateur.
 
-## Features
+## Fonctionnalités
 
-- CRUD operations with priority levels (十分紧急 / 较为紧急 / 一般)
-- Custom categories
-- Period statistics (today, this week, this month, this quarter, this year)
-- Filter by: all, active, completed, by creation time, by completion time, by category
-- Real-time search
-- Export to DOCX / Excel
-- Import from Excel
-- Work report generation
-- Sound effects
-- Responsive design
-- **Multi-language UI** (Chinese, English, Japanese, Korean, German, French)
+- Opérations CRUD avec niveaux de priorité (十分紧急 / 较为紧急 / 一般)
+- Catégories personnalisées
+- Statistiques périodiques (aujourd'hui, cette semaine, ce mois, ce trimestre, cette année)
+- Filtres: Tous, Actifs, Terminés, Par date de création, Par date de fin, Par catégorie
+- Recherche en temps réel
+- Export vers DOCX / Excel
+- Import depuis Excel
+- Génération de rapports de travail
+- Effets sonores
+- Design responsive
+- **Interface multilingue** (Chinois, Anglais, Japonais, Coréen, Allemand, Français)
 
-## Quick Start
+## Démarrage rapide
 
 ```bash
 # macOS
@@ -37,19 +37,19 @@ start ToDoList.html
 xdg-open ToDoList.html
 ```
 
-## Data Storage
+## Stockage des données
 
-- All data stored in browser localStorage
-- Keys: `todos`, `todoCategories`
+- Toutes les données sont stockées dans le localStorage du navigateur
+- Clés: `todos`, `todoCategories`
 
-## Tech Stack
+## Stack technique
 
-- Vanilla JavaScript
-- docx@8.5.0 (DOCX export)
-- xlsx@0.18.5 (Excel import/export)
+- JavaScript vanilla
+- docx@8.5.0 (Export DOCX)
+- xlsx@0.18.5 (Import/Export Excel)
 - Google Fonts: Outfit, JetBrains Mono
 
-## License
+## Licence
 
 MIT License
 

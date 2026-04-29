@@ -1,30 +1,30 @@
-# ToDo List
+# Aufgabenliste ToDo List
 
 [中文](README.md) / [English](README.en.md) / [日本語](README.ja.md) / [한국어](README.ko.md) / [Deutsch](README.de.md) / [Français](README.fr.md)
 
 ---
 
-## Overview
+## Übersicht
 
-A single-file HTML ToDo application with Chinese UI. No build system, no framework dependencies.
+Eine einseitige HTML-Aufgabenlisten-Anwendung mit chinesischer UI. Kein Build-System, keine Framework-Abhängigkeiten.
 
-**Demo**: Open `ToDoList.html` directly in your browser.
+**Demo**: Öffnen Sie `ToDoList.html` direkt in Ihrem Browser.
 
-## Features
+## Funktionen
 
-- CRUD operations with priority levels (十分紧急 / 较为紧急 / 一般)
-- Custom categories
-- Period statistics (today, this week, this month, this quarter, this year)
-- Filter by: all, active, completed, by creation time, by completion time, by category
-- Real-time search
-- Export to DOCX / Excel
-- Import from Excel
-- Work report generation
-- Sound effects
-- Responsive design
-- **Multi-language UI** (Chinese, English, Japanese, Korean, German, French)
+- CRUD-Operationen mit Prioritätsstufen (十分紧急 / 较为紧急 / 一般)
+- Benutzerdefinierte Kategorien
+- Periodenstatistik (heute, diese Woche, dieser Monat, dieses Quartal, dieses Jahr)
+- Filter: Alle, Aktiv, Erledigt, Nach Erstellungszeit, Nach Erledigungszeit, Nach Kategorie
+- Echtzeit-Suche
+- Export nach DOCX / Excel
+- Import aus Excel
+- Arbeitsberichterstellung
+- Toneffekte
+- Responsive Design
+- **Mehrsprachige UI** (Chinesisch, Englisch, Japanisch, Koreanisch, Deutsch, Französisch)
 
-## Quick Start
+## Schnellstart
 
 ```bash
 # macOS
@@ -37,19 +37,19 @@ start ToDoList.html
 xdg-open ToDoList.html
 ```
 
-## Data Storage
+## Datenspeicherung
 
-- All data stored in browser localStorage
-- Keys: `todos`, `todoCategories`
+- Alle Daten werden im Browser localStorage gespeichert
+- Schlüssel: `todos`, `todoCategories`
 
-## Tech Stack
+## Technologie-Stack
 
 - Vanilla JavaScript
-- docx@8.5.0 (DOCX export)
-- xlsx@0.18.5 (Excel import/export)
+- docx@8.5.0 (DOCX-Export)
+- xlsx@0.18.5 (Excel-Import/Export)
 - Google Fonts: Outfit, JetBrains Mono
 
-## License
+## Lizenz
 
 MIT License
 
