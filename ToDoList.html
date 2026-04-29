@@ -1847,7 +1847,8 @@
             periodDay: '今日', periodWeek: '本周', periodMonth: '本月', periodQuarter: '本季', periodYear: '本年',
             defaultCategory: '工作', confirmDelete: '该分类下有 {count} 个待办事项，确定要删除吗？',
             summaryEmpty: '还没有添加待办事项', summaryAllDone: '太棒了！全部完成！', summaryProgress: '已完成 {completed} 项，还剩 {remaining} 项，马上完成！', summaryRemind: '还有 {remaining} 项任务待完成',
-            periodTab: '时间段'
+            periodTab: '时间段',
+            summaryTitle: '工作总结', exportAll: '全部', exportActive: '待完成', exportCompleted: '已完成'
         },
         en: {
             title: 'To-Do List',
@@ -1877,7 +1878,8 @@
             periodDay: 'Today', periodWeek: 'This Week', periodMonth: 'This Month', periodQuarter: 'This Quarter', periodYear: 'This Year',
             defaultCategory: 'Work', confirmDelete: 'This category has {count} to-dos. Delete anyway?',
             summaryEmpty: 'No to-dos added yet', summaryAllDone: 'Great! All done!', summaryProgress: '{completed} done, {remaining} to go, almost there!', summaryRemind: '{remaining} tasks remaining',
-            periodTab: 'Period'
+            periodTab: 'Period',
+            summaryTitle: 'Summary', exportAll: 'All', exportActive: 'Active', exportCompleted: 'Completed'
         }
     };
 
@@ -1921,6 +1923,28 @@
         langBtns.forEach(btn => {
             btn.classList.toggle('active', btn.dataset.lang === currentLang);
         });
+
+        // Translate summary period tabs
+        const periodKeys = { past1d: 'periodPast1d', past2d: 'periodPast2d', past3d: 'periodPast3d', pastweek: 'periodPastweek', day: 'periodDay', week: 'periodWeek', month: 'periodMonth', quarter: 'periodQuarter', year: 'periodYear' };
+        document.querySelectorAll('.summary-tab').forEach(btn => {
+            const key = periodKeys[btn.dataset.period];
+            if (key) btn.textContent = t(key);
+        });
+
+        // Translate export menu
+        document.querySelector('.export-menu-title').textContent = t('exportOptions');
+        const exportOptions = document.querySelectorAll('.export-option');
+        const exportLabels = [
+            t('filterAll'), t('filterActive'), t('filterCompleted'), t('filterByCreate'), t('filterByComplete'), t('filterByPriority'), t('filterByCategory'),
+            '📊 ' + t('filterAll'), '📊 ' + t('filterActive'), '📊 ' + t('filterCompleted'), '📊 ' + t('filterByCreate'), '📊 ' + t('filterByComplete'), '📊 ' + t('filterByPriority'), '📊 ' + t('filterByCategory')
+        ];
+        exportOptions.forEach((opt, i) => { if (exportLabels[i]) opt.textContent = exportLabels[i]; });
+
+        // Translate clear completed button
+        document.getElementById('clearBtn').textContent = `🗑️ ${t('clearCompleted')}`;
+
+        // Translate summary header
+        document.querySelector('.summary-header h2').textContent = `📊 ${t('summaryTitle')}`;
 
         const pLabels = { high: t('high'), medium: t('medium'), low: t('low') };
         document.querySelectorAll('.todo-priority').forEach(el => {
@@ -1992,6 +2016,7 @@
         document.querySelectorAll('.summary-tab').forEach(t => t.classList.remove('active'));
         document.querySelector(`.summary-tab[data-period="${period}"]`).classList.add('active');
         renderSummary();
+        applyI18n();
     }
 
     function addTodo() {
