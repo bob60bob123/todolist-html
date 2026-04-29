@@ -2,6 +2,12 @@
 .DS_Store
 Thumbs.db
 
+# Shortcuts
+*.lnk
+
+# Local copies
+ToDoList--*.html
+
 # Excel temp
 ~$*.xlsx
 *.xlsx~
