@@ -197,6 +197,44 @@
             line-height: 1.6;
         }
 
+        .app-header-content {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .app-title {
+            flex: 1;
+        }
+
+        .lang-switch {
+            display: flex;
+            gap: 4px;
+        }
+
+        .lang-btn {
+            padding: 4px 10px;
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            background: var(--surface-solid);
+            color: var(--text-secondary);
+            font-size: 12px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .lang-btn:hover {
+            border-color: var(--primary);
+            color: var(--primary);
+        }
+
+        .lang-btn.active {
+            background: var(--primary);
+            color: white;
+            border-color: var(--primary);
+        }
+
         /* ===== Stats Bar ===== */
         .stats-bar {
             display: grid;
@@ -1470,6 +1508,8 @@
             .priority-summary { grid-template-columns: 1fr; }
 
             .summary-sidebar { display: none; }
+
+            .lang-switch { display: none; }
         }
 
         @keyframes fadeIn {
@@ -1490,6 +1530,10 @@
                     待办事项 <span>· ToDo</span>
                 </div>
                 <div class="app-date" id="currentDate"></div>
+                <div class="lang-switch">
+                    <button class="lang-btn" data-lang="zh" onclick="switchLang('zh')">中文</button>
+                    <button class="lang-btn" data-lang="en" onclick="switchLang('en')">EN</button>
+                </div>
             </div>
         </div>
 
@@ -1772,14 +1816,114 @@
     let currentFilter = 'all';
     let currentPeriod = 'day';
     let customDate = null;
+    let currentLang = localStorage.getItem('todoLang') || 'zh';
+
+    const i18n = {
+        zh: {
+            title: '待办事项',
+            all: '全部', completed: '已完成', active: '待完成',
+            addTodo: '添加新的待办事项...',
+            low: '一般', medium: '较为紧急', high: '十分紧急',
+            add: '添加', manageCategories: '管理分类',
+            search: '搜索待办事项...',
+            export: '导出', exportOptions: '导出选项',
+            import: '导入',
+            clearCompleted: '清除已完成',
+            reportTitle: '工作汇报', exportDocx: '导出DOCX', copyReport: '复制汇报',
+            categoryManager: '管理分类', newCategory: '输入新分类名称...', categoryExists: '分类已存在',
+            delete: '删除', cancel: '取消',
+            noTodos: '暂无待办事项', allDone: '太棒了，所有事项都完成了！', noCompleted: '暂无已完成的事项',
+            tryOther: '试试其他关键词', addFirst: '添加一条新待办开始吧',
+            noMatch: '未找到匹配的待办事项',
+            filterAll: '全部', filterActive: '待完成', filterCompleted: '已完成',
+            filterByCreate: '按创建时间', filterByComplete: '按完成时间', filterByCategory: '按分类', filterByPriority: '按紧急程度',
+            periodPast1d: '过去1日', periodPast2d: '过去2日', periodPast3d: '过去3日', periodPastweek: '过去一周',
+            periodDay: '今日', periodWeek: '本周', periodMonth: '本月', periodQuarter: '本季', periodYear: '本年',
+            defaultCategory: '工作', confirmDelete: '该分类下有 {count} 个待办事项，确定要删除吗？'
+        },
+        en: {
+            title: 'To-Do List',
+            all: 'All', completed: 'Completed', active: 'Active',
+            addTodo: 'Add new to-do...',
+            low: 'Normal', medium: 'Urgent', high: 'Critical',
+            add: 'Add', manageCategories: 'Categories',
+            search: 'Search to-dos...',
+            export: 'Export', exportOptions: 'Export Options',
+            import: 'Import',
+            clearCompleted: 'Clear Completed',
+            reportTitle: 'Work Report', exportDocx: 'Export DOCX', copyReport: 'Copy Report',
+            categoryManager: 'Manage Categories', newCategory: 'Enter new category...', categoryExists: 'Category already exists',
+            delete: 'Delete', cancel: 'Cancel',
+            noTodos: 'No to-dos yet', allDone: 'Great, all tasks completed!', noCompleted: 'No completed items',
+            tryOther: 'Try another keyword', addFirst: 'Add your first to-do',
+            noMatch: 'No matching to-dos found',
+            filterAll: 'All', filterActive: 'Active', filterCompleted: 'Completed',
+            filterByCreate: 'By Create Time', filterByComplete: 'By Complete Time', filterByCategory: 'By Category', filterByPriority: 'By Priority',
+            periodPast1d: 'Past 1 Day', periodPast2d: 'Past 2 Days', periodPast3d: 'Past 3 Days', periodPastweek: 'Past Week',
+            periodDay: 'Today', periodWeek: 'This Week', periodMonth: 'This Month', periodQuarter: 'This Quarter', periodYear: 'This Year',
+            defaultCategory: 'Work', confirmDelete: 'This category has {count} to-dos. Delete anyway?'
+        }
+    };
+
+    function t(key) { return i18n[currentLang][key] || key; }
+
+    function switchLang(lang) {
+        currentLang = lang;
+        localStorage.setItem('todoLang', lang);
+        applyI18n();
+    }
+
+    function applyI18n() {
+        document.title = t('title') + ' - ToDo List';
+        document.querySelector('.app-title').innerHTML = `<div class="app-title-icon">✓</div>${t('title')} <span>· ToDo</span>`;
+        document.querySelectorAll('.stat-label')[0].textContent = t('all');
+        document.querySelectorAll('.stat-label')[1].textContent = t('completed');
+        document.querySelectorAll('.stat-label')[2].textContent = t('active');
+        document.getElementById('todoInput').placeholder = t('addTodo');
+        document.getElementById('prioritySelect').options[0].text = t('low');
+        document.getElementById('prioritySelect').options[1].text = t('medium');
+        document.getElementById('prioritySelect').options[2].text = t('high');
+        document.querySelector('.btn-primary').textContent = t('add');
+        document.querySelector('.export-btn').innerHTML = `📄 ${t('export')} <span class="export-arrow">▼</span>`;
+        document.querySelector('.export-menu-title').textContent = t('exportOptions');
+        document.querySelector('.clear-completed').textContent = `🗑️ ${t('clearCompleted')}`;
+        document.getElementById('reportModalTitle').textContent = `📋 ${t('reportTitle')}`;
+        document.getElementById('exportReportBtn').textContent = `📄 ${t('exportDocx')}`;
+        document.getElementById('copyBtn').textContent = `📋 ${t('copyReport')}`;
+        document.querySelector('#categoryManager h3').textContent = `⚙️ ${t('categoryManager')}`;
+        document.getElementById('newCategoryInput').placeholder = t('newCategory');
+        document.querySelector('#categoryManager .btn-primary').textContent = t('add');
+        document.getElementById('searchInput').placeholder = t('search');
+
+        const filters = ['all', 'active', 'completed', 'byCreateTime', 'byCompletedTime', 'byCategory', 'byPriority'];
+        const filterBtns = document.querySelectorAll('.filter-tab');
+        const filterLabels = [t('filterAll'), t('filterActive'), t('filterCompleted'), t('filterByCreate'), t('filterByComplete'), t('filterByCategory'), t('filterByPriority')];
+        filterBtns.forEach((btn, i) => { if (filterLabels[i]) btn.textContent = filterLabels[i]; });
+
+        const langBtns = document.querySelectorAll('.lang-btn');
+        langBtns.forEach(btn => {
+            btn.classList.toggle('active', btn.dataset.lang === currentLang);
+        });
+
+        const pLabels = { high: t('high'), medium: t('medium'), low: t('low') };
+        document.querySelectorAll('.todo-priority').forEach(el => {
+            const p = el.classList.contains('priority-high') ? 'high' : el.classList.contains('priority-medium') ? 'medium' : 'low';
+            el.textContent = pLabels[p];
+        });
+
+        document.getElementById('currentDate').textContent = new Date().toLocaleDateString(currentLang === 'zh' ? 'zh-CN' : 'en-US', {
+            year: 'numeric', month: 'long', day: 'numeric', weekday: 'long'
+        });
+    }
 
     document.addEventListener('DOMContentLoaded', () => {
-        document.getElementById('currentDate').textContent = new Date().toLocaleDateString('zh-CN', {
+        document.getElementById('currentDate').textContent = new Date().toLocaleDateString(currentLang === 'zh' ? 'zh-CN' : 'en-US', {
             year: 'numeric', month: 'long', day: 'numeric', weekday: 'long'
         });
         updateCategorySelect();
         renderTodos();
         renderSummary();
+        applyI18n();
     });
 
     function getPeriodRange(period) {
