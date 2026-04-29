@@ -2446,7 +2446,13 @@ function copyReport() {
         const reportText = document.getElementById('reportText').textContent;
         const title = document.getElementById('reportModalTitle').textContent.replace('📋 ', '');
         const now = new Date();
-        const fds = `${now.getFullYear()}${String(now.getMonth()+1).padStart(2,'0')}${String(now.getDate()).padStart(2,'0')}`;
+        let fds;
+        if (currentPeriod==='day') fds=`${now.getFullYear()}年${now.getMonth()+1}月${now.getDate()}日`;
+        else if (currentPeriod==='week') { const r=getPeriodRange('week'); fds=`${r.start.getMonth()+1}月${r.start.getDate()}日-${r.end.getMonth()+1}月${r.end.getDate()}日`; }
+        else if (currentPeriod==='month') fds=`${now.getFullYear()}年${now.getMonth()+1}月`;
+        else if (currentPeriod==='quarter') fds=`${now.getFullYear()}年第${Math.floor(now.getMonth()/3)+1}季度`;
+        else if (currentPeriod==='year') fds=`${now.getFullYear()}年`;
+        else { fds=`${now.getFullYear()}${String(now.getMonth()+1).padStart(2,'0')}${String(now.getDate()).padStart(2,'0')}`; }
         const lines = reportText.split('\n');
         const children = [
             new Paragraph({ children: [new TextRun({ text: title, bold: true, size: 36 })], spacing: { before: 200, after: 400 } })
