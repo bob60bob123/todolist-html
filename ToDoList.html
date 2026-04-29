@@ -1981,29 +1981,83 @@
     }
 
     function applyTranslations() {
-        // Update elements with data-i18n attribute
-        document.querySelectorAll('[data-i18n]').forEach(el => {
-            const key = el.getAttribute('data-i18n');
-            el.textContent = t(key);
-        });
-        document.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
-            const key = el.getAttribute('data-i18n-placeholder');
-            el.placeholder = t(key);
-        });
+        // Update app title
+        const appTitle = document.getElementById('appTitle');
+        if (appTitle) appTitle.textContent = t('appTitle');
+
+        // Update stat labels
+        const statLabels = document.querySelectorAll('.stat-label');
+        if (statLabels[0]) statLabels[0].textContent = t('all');
+        if (statLabels[1]) statLabels[1].textContent = t('completed');
+        if (statLabels[2]) statLabels[2].textContent = t('active');
+
+        // Update input placeholder
+        const todoInput = document.getElementById('todoInput');
+        if (todoInput) todoInput.placeholder = t('addTodoPlaceholder');
+
+        // Update buttons
+        const addBtn = document.querySelector('.btn-primary');
+        if (addBtn) addBtn.textContent = t('add');
+
+        const categoryBtn = document.querySelector('.btn-icon[onclick*="Category"]');
+        if (categoryBtn) categoryBtn.title = t('manageCategories');
+
         // Update filter tabs
         document.querySelectorAll('.filter-tab').forEach(tab => {
             const filter = tab.getAttribute('data-filter');
-            if (filter && t('filter' + filter.charAt(0).toUpperCase() + filter.slice(1))) {
-                tab.textContent = t('filter' + filter.charAt(0).toUpperCase() + filter.slice(1));
-            }
+            let key;
+            if (filter === 'byCreateTime') key = 'filterByCreateTime';
+            else if (filter === 'byCompletedTime') key = 'filterByCompletedTime';
+            else if (filter === 'byCategory') key = 'filterByCategory';
+            else key = 'filter' + filter.charAt(0).toUpperCase() + filter.slice(1);
+            if (t(key)) tab.textContent = t(key);
         });
+
+        // Update search placeholder
+        const searchInput = document.getElementById('searchInput');
+        if (searchInput) searchInput.placeholder = t('searchPlaceholder');
+
+        // Update export/import buttons
+        const exportBtn = document.querySelector('.export-btn');
+        if (exportBtn) exportBtn.innerHTML = '📄 ' + t('export') + ' <span class="export-arrow">▼</span>';
+
+        const importBtn = document.querySelector('button[onclick*="importFile"]');
+        if (importBtn) importBtn.textContent = '📤 ' + t('import');
+
+        // Update clear completed button
+        const clearBtn = document.getElementById('clearBtn');
+        if (clearBtn) clearBtn.textContent = '🗑️ ' + t('clearCompleted');
+
+        // Update summary title
+        const summaryTitle = document.querySelector('.summary-header h2');
+        if (summaryTitle) summaryTitle.textContent = '📊 ' + t('summaryTitle');
+
         // Update summary tabs
         document.querySelectorAll('.summary-tab').forEach(tab => {
             const period = tab.getAttribute('data-period');
-            if (period && t('period' + period.charAt(0).toUpperCase() + period.slice(1))) {
-                tab.textContent = t('period' + period.charAt(0).toUpperCase() + period.slice(1));
-            }
+            let key;
+            if (period === 'pastweek') key = 'periodPastWeek';
+            else key = 'period' + period.charAt(0).toUpperCase() + period.slice(1);
+            if (t(key)) tab.textContent = t(key);
         });
+
+        // Update generate report button
+        const reportBtn = document.querySelector('.btn-report');
+        if (reportBtn) reportBtn.textContent = '📋 ' + t('generateReport');
+
+        // Update priority selects
+        document.querySelectorAll('.priority-select option').forEach((opt, i) => {
+            const priorities = ['priorityLow', 'priorityMedium', 'priorityHigh'];
+            if (priorities[i]) opt.textContent = t(priorities[i]);
+        });
+
+        // Update category modal
+        const categoryModalTitle = document.querySelector('#categoryModal .modal-header h3');
+        if (categoryModalTitle) categoryModalTitle.textContent = '⚙️ ' + t('manageCategories');
+
+        const newCategoryInput = document.getElementById('newCategoryInput');
+        if (newCategoryInput) newCategoryInput.placeholder = t('newCategory');
+
         // Update date display
         const dateEl = document.getElementById('currentDate');
         if (dateEl) {
