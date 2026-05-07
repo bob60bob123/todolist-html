@@ -2227,6 +2227,16 @@ function toggleTodo(id) {
         }
     }
 
+function togglePin(id) {
+    const todo = todos.find(t => t.id === id);
+    if (todo) {
+        todo.pinned = !todo.pinned;
+        saveTodos();
+        renderTodos();
+        playSound('add');
+    }
+}
+
     function showPriorityEditor(id, event) {
         event.stopPropagation();
         const badge = event.target;
