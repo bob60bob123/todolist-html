@@ -2600,6 +2600,14 @@ function togglePin(id) {
         const list = document.getElementById('todoList');
         const clearBtn = document.getElementById('clearBtn');
         let f = todos;
+        // Apply pin sorting for 'all' and 'active' filters
+        if (currentFilter === 'all' || currentFilter === 'active') {
+            const pinnedTodos = f.filter(t => t.pinned);
+            const unpinnedTodos = f.filter(t => !t.pinned);
+            pinnedTodos.sort((a, b) => new Date(b.createTime) - new Date(a.createTime));
+            unpinnedTodos.sort((a, b) => new Date(b.createTime) - new Date(a.createTime));
+            f = [...pinnedTodos, ...unpinnedTodos];
+        }
         if (currentPeriod === 'custom' && customDate) {
             const d = new Date(customDate);
             const s = new Date(d); s.setHours(0,0,0,0);
