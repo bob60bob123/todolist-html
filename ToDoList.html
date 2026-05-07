@@ -553,6 +553,42 @@
             color: var(--text-tertiary);
         }
 
+        .text-editor {
+            width: 100%;
+            padding: 6px 10px;
+            border: none;
+            border-radius: 6px;
+            font-size: 15px;
+            font-family: var(--font);
+            outline: none;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            resize: none;
+            line-height: 1.5;
+            box-shadow: inset 0 1px 3px rgba(0,0,0,0.06);
+            min-height: 36px;
+        }
+
+        .text-editor:focus {
+            background: var(--surface-solid);
+            box-shadow: inset 0 1px 3px rgba(0,0,0,0.08), 0 0 0 2px var(--primary-light);
+        }
+
+        .text-editor-cancel {
+            margin-top: 6px;
+            padding: 4px 12px;
+            font-size: 12px;
+            color: var(--text-secondary);
+            background: var(--bg-primary);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            cursor: pointer;
+        }
+
+        .text-editor-cancel:hover {
+            background: var(--surface-solid);
+        }
+
         .todo-meta {
             display: flex;
             gap: 14px;
@@ -2051,6 +2087,113 @@ function toggleTodo(id) {
         select.style.display = 'none';
     }
 
+    let editingTextId = null;
+    let originalTextCache = {};
+
+    function showTextEditor(id, event) {
+        event.stopPropagation();
+        if (editingTextId !== null && editingTextId !== id) {
+            saveTextEdit(editingTextId);
+        }
+        const todo = todos.find(t => t.id === id);
+        if (!todo) return;
+
+        const item = document.querySelector(`.todo-item[data-id="${id}"]`);
+        if (!item) return;
+
+        const textDiv = item.querySelector('.todo-text');
+        const existingEditor = item.querySelector('.text-editor');
+        if (existingEditor) return;
+
+        originalTextCache[id] = todo.text;
+        editingTextId = id;
+
+        const wrapper = document.createElement('div');
+        wrapper.className = 'text-editor-wrapper';
+        wrapper.style.cssText = 'width:100%';
+
+        const textarea = document.createElement('textarea');
+        textarea.className = 'text-editor';
+        textarea.rows = 1;
+        textarea.value = todo.text;
+        textarea.id = 'text-editor-' + id;
+        textarea.onblur = () => saveTextEdit(id);
+        textarea.onkeydown = (e) => {
+            if (e.key === 'Enter' && e.ctrlKey) {
+                e.preventDefault();
+                saveTextEdit(id);
+            } else if (e.key === 'Escape') {
+                e.preventDefault();
+                cancelTextEdit(id);
+            }
+        };
+
+        const adjustHeight = () => {
+            textarea.style.height = 'auto';
+            textarea.style.height = textarea.scrollHeight + 'px';
+        };
+        textarea.oninput = adjustHeight;
+        setTimeout(adjustHeight, 0);
+
+        const cancelBtn = document.createElement('button');
+        cancelBtn.className = 'text-editor-cancel';
+        cancelBtn.textContent = '取消';
+        cancelBtn.onclick = (e) => {
+            e.stopPropagation();
+            cancelTextEdit(id);
+        };
+
+        wrapper.appendChild(textarea);
+        wrapper.appendChild(cancelBtn);
+
+        textDiv.style.display = 'none';
+        textDiv.parentNode.insertBefore(wrapper, textDiv.nextSibling);
+
+        setTimeout(() => {
+            textarea.focus();
+            const len = textarea.value.length;
+            textarea.setSelectionRange(len, len);
+        }, 0);
+    }
+
+    function saveTextEdit(id) {
+        if (editingTextId !== id) return;
+        const textarea = document.getElementById('text-editor-' + id);
+        if (!textarea) return;
+
+        const newText = textarea.value.trim();
+        if (!newText) {
+            textarea.focus();
+            return;
+        }
+
+        const todo = todos.find(t => t.id === id);
+        if (todo) {
+            todo.text = newText;
+            saveTodos();
+            renderTodos();
+            renderSummary();
+        }
+
+        delete originalTextCache[id];
+        editingTextId = null;
+    }
+
+    function cancelTextEdit(id) {
+        if (editingTextId !== id) return;
+        const item = document.querySelector(`.todo-item[data-id="${id}"]`);
+        if (!item) return;
+
+        const textDiv = item.querySelector('.todo-text');
+        const wrapper = item.querySelector('.text-editor-wrapper');
+        if (wrapper) wrapper.remove();
+
+        if (textDiv) textDiv.style.display = '';
+
+        delete originalTextCache[id];
+        editingTextId = null;
+    }
+
     function deleteTodo(id) {
         todos = todos.filter(t => t.id !== id);
         saveTodos(); renderTodos(); renderSummary();
@@ -2187,12 +2330,12 @@ function toggleTodo(id) {
             const cd = ct ? new Date(ct).toLocaleString('zh-CN', { year:'numeric', month:'2-digit', day:'2-digit', hour:'2-digit', minute:'2-digit' }).replace(/\//g, '-') : '';
             const doneDate = todo.completedAt ? new Date(todo.completedAt).toLocaleString('zh-CN', { year:'numeric', month:'2-digit', day:'2-digit', hour:'2-digit', minute:'2-digit' }).replace(/\//g, '-') : '';
             const cat = todo.category || '工作';
-            return `<div class="todo-item ${todo.completed ? 'completed' : ''}">
+            return `<div class="todo-item ${todo.completed ? 'completed' : ''}" data-id="${todo.id}">
                 <div class="checkbox" onclick="toggleTodo(${todo.id})">
                     <svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
                 </div>
                 <div class="todo-content">
-                    <div class="todo-text">${escapeHtml(todo.text)}</div>
+                    <div class="todo-text" onclick="showTextEditor(${todo.id}, event)">${escapeHtml(todo.text)}</div>
                     <div class="todo-meta">
                         <span>创建：${cd}</span>
                         <span class="todo-category" onclick="showCategoryEditor(${todo.id}, event)">📁 ${escapeHtml(cat)}</span>
@@ -2249,12 +2392,12 @@ function toggleTodo(id) {
                 const cd = ct ? new Date(ct).toLocaleString('zh-CN', { year:'numeric', month:'2-digit', day:'2-digit', hour:'2-digit', minute:'2-digit' }).replace(/\//g, '-') : '';
                 const doneDate = todo.completedAt ? new Date(todo.completedAt).toLocaleString('zh-CN', { year:'numeric', month:'2-digit', day:'2-digit', hour:'2-digit', minute:'2-digit' }).replace(/\//g, '-') : '';
                 const cat = todo.category || '工作';
-                return `<div class="todo-item ${todo.completed ? 'completed' : ''}">
+                return `<div class="todo-item ${todo.completed ? 'completed' : ''}" data-id="${todo.id}">
                     <div class="checkbox" onclick="toggleTodo(${todo.id})">
                         <svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
                     </div>
                     <div class="todo-content">
-                        <div class="todo-text">${escapeHtml(todo.text)}</div>
+                        <div class="todo-text" onclick="showTextEditor(${todo.id}, event)">${escapeHtml(todo.text)}</div>
                         <div class="todo-meta">
                             <span>创建：${cd}</span>
                             <span class="todo-category" onclick="showCategoryEditor(${todo.id}, event)">📁 ${escapeHtml(cat)}</span>
@@ -2315,12 +2458,12 @@ function toggleTodo(id) {
                 const ct = todo.createTime || todo.createdAt;
                 const cd = ct ? new Date(ct).toLocaleString('zh-CN', { year:'numeric', month:'2-digit', day:'2-digit', hour:'2-digit', minute:'2-digit' }).replace(/\//g, '-') : '';
                 const doneDate = todo.completedAt ? new Date(todo.completedAt).toLocaleString('zh-CN', { year:'numeric', month:'2-digit', day:'2-digit', hour:'2-digit', minute:'2-digit' }).replace(/\//g, '-') : '';
-                return `<div class="todo-item ${todo.completed ? 'completed' : ''}">
+                return `<div class="todo-item ${todo.completed ? 'completed' : ''}" data-id="${todo.id}">
                     <div class="checkbox" onclick="toggleTodo(${todo.id})">
                         <svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
                     </div>
                     <div class="todo-content">
-                        <div class="todo-text">${escapeHtml(todo.text)}</div>
+                        <div class="todo-text" onclick="showTextEditor(${todo.id}, event)">${escapeHtml(todo.text)}</div>
                         <div class="todo-meta">
                             <span>创建：${cd}</span>
                             <span class="todo-category" onclick="showCategoryEditor(${todo.id}, event)">📁 ${escapeHtml(cat)}</span>
@@ -2378,12 +2521,12 @@ function toggleTodo(id) {
                 const cd = ct ? new Date(ct).toLocaleString('zh-CN', { year:'numeric', month:'2-digit', day:'2-digit', hour:'2-digit', minute:'2-digit' }).replace(/\//g, '-') : '';
                 const doneDate = todo.completedAt ? new Date(todo.completedAt).toLocaleString('zh-CN', { year:'numeric', month:'2-digit', day:'2-digit', hour:'2-digit', minute:'2-digit' }).replace(/\//g, '-') : '';
                 const cat = todo.category || '工作';
-                return `<div class="todo-item ${todo.completed ? 'completed' : ''}">
+                return `<div class="todo-item ${todo.completed ? 'completed' : ''}" data-id="${todo.id}">
                     <div class="checkbox" onclick="toggleTodo(${todo.id})">
                         <svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
                     </div>
                     <div class="todo-content">
-                        <div class="todo-text">${escapeHtml(todo.text)}</div>
+                        <div class="todo-text" onclick="showTextEditor(${todo.id}, event)">${escapeHtml(todo.text)}</div>
                         <div class="todo-meta">
                             <span>创建：${cd}</span>
                             <span class="todo-category" onclick="showCategoryEditor(${todo.id}, event)">📁 ${escapeHtml(cat)}</span>
