@@ -1854,7 +1854,7 @@
             <div class="trash-modal-overlay" id="trashModal" style="display:none" onclick="closeTrashBin()">
                 <div class="trash-modal" onclick="event.stopPropagation()">
                     <div class="trash-modal-header">
-                        <div class="trash-modal-title">🗑️ 回收站</div>
+                        <div class="trash-modal-title">🗑️ ${t('trashTitle')}</div>
                         <button class="trash-modal-close" onclick="closeTrashBin()">✕</button>
                     </div>
                     <div class="trash-modal-body" id="trashModalBody">
@@ -2121,7 +2121,10 @@
             exportStatus: '状态', exportContent: '事项内容', exportPriority: '优先级',
             exportCreateTime: '创建时间', exportCompleteTime: '完成时间',
             exportStats: '统计', exportTotal: '总计',
-            exportSheetName: '待办清单'
+            exportSheetName: '待办清单',
+            // Trash
+            trashTitle: '回收站', trashEmpty: '回收站为空',
+            trashDeletedAt: '删除于', trashRestore: '恢复', trashPermanentDelete: '永久删除'
         },
         en: {
             title: 'To-Do List',
@@ -2166,7 +2169,10 @@
             exportStatus: 'Status', exportContent: 'Content', exportPriority: 'Priority',
             exportCreateTime: 'Created', exportCompleteTime: 'Completed',
             exportStats: 'Stats', exportTotal: 'Total',
-            exportSheetName: 'To-Do List'
+            exportSheetName: 'To-Do List',
+            // Trash
+            trashTitle: 'Trash Bin', trashEmpty: 'Trash bin is empty',
+            trashDeletedAt: 'Deleted at', trashRestore: 'Restore', trashPermanentDelete: 'Delete Forever'
         }
     };
 
@@ -2229,16 +2235,22 @@
         });
 
         // Update export menu items
+        const exportLabels = [
+            t('filterAll'), t('filterActive'), t('filterCompleted'),
+            t('filterByCreate'), t('filterByComplete'), t('filterByPriority'), t('filterByCategory')
+        ];
+        const excelPrefix = currentLang === 'zh' ? '📊 导出Excel - ' : '📊 Export Excel - ';
         const exportOptions = document.querySelectorAll('.export-option');
-        if (exportOptions.length >= 7) {
-            exportOptions[0].textContent = t('filterAll');
-            exportOptions[1].textContent = t('filterActive');
-            exportOptions[2].textContent = t('filterCompleted');
-            exportOptions[3].textContent = t('filterByCreate');
-            exportOptions[4].textContent = t('filterByComplete');
-            exportOptions[5].textContent = t('filterByPriority');
-            exportOptions[6].textContent = t('filterByCategory');
-        }
+        exportOptions.forEach((opt, i) => {
+            if (i < 7) {
+                opt.textContent = exportLabels[i];
+            } else {
+                opt.textContent = excelPrefix + exportLabels[i - 7];
+            }
+        });
+
+        // Update trash button
+        document.querySelector('.trash-btn').innerHTML = `🗑️ ${t('trashTitle')} <span class="trash-badge" id="trashBadge" style="display:none">0</span>`;
     }
 
     document.addEventListener('DOMContentLoaded', () => {
@@ -2564,22 +2576,23 @@ function togglePin(id) {
         const body = document.getElementById('trashModalBody');
 
         if (trashBin.length === 0) {
-            body.innerHTML = '<div class="trash-empty">🗑️ 回收站为空</div>';
+            body.innerHTML = `<div class="trash-empty">🗑️ ${t('trashEmpty')}</div>`;
             return;
         }
 
+        const localeStr = currentLang === 'zh' ? 'zh-CN' : 'en-US';
         body.innerHTML = trashBin.map(todo => {
-            const deletedDate = todo.deletedAt ? new Date(todo.deletedAt).toLocaleString('zh-CN', {
+            const deletedDate = todo.deletedAt ? new Date(todo.deletedAt).toLocaleString(localeStr, {
                 year: 'numeric', month: '2-digit', day: '2-digit',
                 hour: '2-digit', minute: '2-digit'
             }).replace(/\//g, '-') : '';
 
             return `<div class="trash-item">
                 <div class="trash-item-content">${escapeHtml(todo.text)}</div>
-                <div class="trash-item-meta">删除于 ${deletedDate}</div>
+                <div class="trash-item-meta">${t('trashDeletedAt')} ${deletedDate}</div>
                 <div class="trash-item-actions">
-                    <button class="trash-btn-restore" onclick="restoreFromTrash(${todo.id})">恢复</button>
-                    <button class="trash-btn-delete" onclick="permanentDelete(${todo.id})">永久删除</button>
+                    <button class="trash-btn-restore" onclick="restoreFromTrash(${todo.id})">${t('trashRestore')}</button>
+                    <button class="trash-btn-delete" onclick="permanentDelete(${todo.id})">${t('trashPermanentDelete')}</button>
                 </div>
             </div>`;
         }).join('');
