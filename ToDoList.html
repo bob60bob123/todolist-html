@@ -1847,7 +1847,7 @@
                     🗑️ 回收站
                     <span class="trash-badge" id="trashBadge" style="display:none">0</span>
                 </button>
-                <button class="btn-icon" onclick="document.getElementById('importFile').click()">📤 导入</button>
+                <button class="btn-icon" onclick="document.getElementById('importFile').click()">📤 <span class="import-label">导入</span></button>
                 <input type="file" id="importFile" accept=".xlsx,.xls,.docx" style="display:none" onchange="importTodoList(event)">
             </div>
             <!-- Trash Bin Modal -->
@@ -2241,16 +2241,25 @@
         ];
         const excelPrefix = currentLang === 'zh' ? '📊 导出Excel - ' : '📊 Export Excel - ';
         const exportOptions = document.querySelectorAll('.export-option');
-        exportOptions.forEach((opt, i) => {
-            if (i < 7) {
-                opt.textContent = exportLabels[i];
-            } else {
-                opt.textContent = excelPrefix + exportLabels[i - 7];
-            }
-        });
+        if (exportOptions.length > 0) {
+            exportOptions.forEach((opt, i) => {
+                if (i < 7) {
+                    opt.textContent = exportLabels[i];
+                } else {
+                    opt.textContent = excelPrefix + exportLabels[i - 7];
+                }
+            });
+        }
+
+        // Update import button
+        const importLabel = document.querySelector('.import-label');
+        if (importLabel) importLabel.textContent = t('import');
 
         // Update trash button
-        document.querySelector('.trash-btn').innerHTML = `🗑️ ${t('trashTitle')} <span class="trash-badge" id="trashBadge" style="display:none">0</span>`;
+        const trashBtn = document.querySelector('.trash-btn');
+        if (trashBtn) {
+            trashBtn.innerHTML = `🗑️ ${t('trashTitle')} <span class="trash-badge" id="trashBadge" style="display:none">0</span>`;
+        }
     }
 
     document.addEventListener('DOMContentLoaded', () => {
