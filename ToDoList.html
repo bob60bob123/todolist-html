@@ -2098,7 +2098,30 @@
             filterByCreate: '按创建时间', filterByComplete: '按完成时间', filterByCategory: '按分类', filterByPriority: '按紧急程度',
             periodPast1d: '过去1日', periodPast2d: '过去2日', periodPast3d: '过去3日', periodPastweek: '过去一周',
             periodDay: '今日', periodWeek: '本周', periodMonth: '本月', periodQuarter: '本季', periodYear: '本年',
-            defaultCategory: '工作', confirmDelete: '该分类下有 {count} 个待办事项，确定要删除吗？'
+            defaultCategory: '工作', confirmDelete: '该分类下有 {count} 个待办事项，确定要删除吗？',
+            // Summary i18n
+            summaryTitle: '工作总结', summaryProgress: '完成进度',
+            summaryCompleted: '已完成', summaryRemaining: '待完成',
+            summaryPriority: '待办优先级',
+            summaryNew: '新建', summaryCreate: '创建', summaryDone: '完成',
+            summaryCreateTitle: '新建', summaryDoneTitle: '完成',
+            backToToday: '返回今日',
+            // Messages
+            noTodosYet: '还没有添加待办事项', greatJob: '太棒了！全部完成！',
+            almostDone: '已完成 {completed} 项，还剩 {remaining} 项，马上完成！',
+            keepGoing: '已完成 {completed} 项，稳步推进中！',
+            goodStart: '已完成 {completed} 项，开了个好头！',
+            tasksRemaining: '{remaining} 项任务待完成',
+            exportNoTodos: '暂无待办事项可导出',
+            exportFailed: '导出失败，请重试',
+            importSuccess: '成功导入 {count} 条待办事项！',
+            importFailed: '导入失败，请检查文件格式',
+            generateReport: '生成工作汇报',
+            // Export
+            exportStatus: '状态', exportContent: '事项内容', exportPriority: '优先级',
+            exportCreateTime: '创建时间', exportCompleteTime: '完成时间',
+            exportStats: '统计', exportTotal: '总计',
+            exportSheetName: '待办清单'
         },
         en: {
             title: 'To-Do List',
@@ -2120,7 +2143,30 @@
             filterByCreate: 'By Create Time', filterByComplete: 'By Complete Time', filterByCategory: 'By Category', filterByPriority: 'By Priority',
             periodPast1d: 'Past 1 Day', periodPast2d: 'Past 2 Days', periodPast3d: 'Past 3 Days', periodPastweek: 'Past Week',
             periodDay: 'Today', periodWeek: 'This Week', periodMonth: 'This Month', periodQuarter: 'This Quarter', periodYear: 'This Year',
-            defaultCategory: 'Work', confirmDelete: 'This category has {count} to-dos. Delete anyway?'
+            defaultCategory: 'Work', confirmDelete: 'This category has {count} to-dos. Delete anyway?',
+            // Summary i18n
+            summaryTitle: 'Summary', summaryProgress: 'Progress',
+            summaryCompleted: 'Completed', summaryRemaining: 'Remaining',
+            summaryPriority: 'Priority',
+            summaryNew: 'New', summaryCreate: 'Created', summaryDone: 'Done',
+            summaryCreateTitle: 'Created', summaryDoneTitle: 'Done',
+            backToToday: 'Back to Today',
+            // Messages
+            noTodosYet: 'No to-dos added yet', greatJob: 'Great job! All completed!',
+            almostDone: '{completed} completed, {remaining} remaining, almost there!',
+            keepGoing: '{completed} completed, making steady progress!',
+            goodStart: '{completed} completed, good start!',
+            tasksRemaining: '{remaining} tasks remaining',
+            exportNoTodos: 'No to-dos to export',
+            exportFailed: 'Export failed, please retry',
+            importSuccess: 'Successfully imported {count} to-dos!',
+            importFailed: 'Import failed, please check file format',
+            generateReport: 'Generate Report',
+            // Export
+            exportStatus: 'Status', exportContent: 'Content', exportPriority: 'Priority',
+            exportCreateTime: 'Created', exportCompleteTime: 'Completed',
+            exportStats: 'Stats', exportTotal: 'Total',
+            exportSheetName: 'To-Do List'
         }
     };
 
@@ -2173,6 +2219,26 @@
         document.getElementById('currentDate').textContent = new Date().toLocaleDateString(currentLang === 'zh' ? 'zh-CN' : 'en-US', {
             year: 'numeric', month: 'long', day: 'numeric', weekday: 'long'
         });
+
+        // Update summary header and tabs
+        document.querySelector('.summary-header h2').innerHTML = `📊 ${t('summaryTitle')}`;
+        const periodKeys = ['past1d', 'past2d', 'past3d', 'pastweek', 'day', 'week', 'month', 'quarter', 'year'];
+        const periodLabels = [t('periodPast1d'), t('periodPast2d'), t('periodPast3d'), t('periodPastweek'), t('periodDay'), t('periodWeek'), t('periodMonth'), t('periodQuarter'), t('periodYear')];
+        document.querySelectorAll('.summary-tab').forEach((btn, i) => {
+            if (periodLabels[i]) btn.textContent = periodLabels[i];
+        });
+
+        // Update export menu items
+        const exportOptions = document.querySelectorAll('.export-option');
+        if (exportOptions.length >= 7) {
+            exportOptions[0].textContent = t('filterAll');
+            exportOptions[1].textContent = t('filterActive');
+            exportOptions[2].textContent = t('filterCompleted');
+            exportOptions[3].textContent = t('filterByCreate');
+            exportOptions[4].textContent = t('filterByComplete');
+            exportOptions[5].textContent = t('filterByPriority');
+            exportOptions[6].textContent = t('filterByCategory');
+        }
     }
 
     document.addEventListener('DOMContentLoaded', () => {
@@ -2917,18 +2983,19 @@ function togglePin(id) {
         const cLow = ptodos.filter(t => t.completed && t.priority === 'low').length;
 
         let emoji, msg;
-        if (total === 0) { emoji = '✨'; msg = '还没有添加待办事项'; }
-        else if (progress === 100) { emoji = '🎉'; msg = '太棒了！全部完成！'; }
-        else if (progress >= 70) { emoji = '💪'; msg = `已完成 ${completed} 项，还剩 ${remaining} 项，马上完成！`; }
-        else if (progress >= 40) { emoji = '🚀'; msg = `已完成 ${completed} 项，稳步推进中！`; }
-        else if (progress > 0) { emoji = '📈'; msg = `已完成 ${completed} 项，开了个好头！`; }
-        else { emoji = '🎯'; msg = `${remaining} 项任务待完成`; }
+        if (total === 0) { emoji = '✨'; msg = t('noTodosYet'); }
+        else if (progress === 100) { emoji = '🎉'; msg = t('greatJob'); }
+        else if (progress >= 70) { emoji = '💪'; msg = t('almostDone').replace('{completed}', completed).replace('{remaining}', remaining); }
+        else if (progress >= 40) { emoji = '🚀'; msg = t('keepGoing').replace('{completed}', completed); }
+        else if (progress > 0) { emoji = '📈'; msg = t('goodStart').replace('{completed}', completed); }
+        else { emoji = '🎯'; msg = t('tasksRemaining').replace('{remaining}', remaining); }
 
-        const pLabels = { past1d: '过去1日', past2d: '过去2日', past3d: '过去3日', pastweek: '过去一周', day: '今日', week: '本周', month: '本月', quarter: '本季', year: '本年' };
+        const periodMap = { past1d: 'periodPast1d', past2d: 'periodPast2d', past3d: 'periodPast3d', pastweek: 'periodPastweek', day: 'periodDay', week: 'periodWeek', month: 'periodMonth', quarter: 'periodQuarter', year: 'periodYear' };
+        const periodLabel = t(periodMap[currentPeriod] || 'periodDay');
 
         container.innerHTML = `
             <div class="summary-section">
-                <div class="summary-section-title">📈 完成进度 · ${pLabels[currentPeriod] || ''}</div>
+                <div class="summary-section-title">📈 ${t('summaryProgress')} · ${periodLabel}</div>
                 <div class="progress-wrap">
                     <div class="progress-bar-bg"><div class="progress-bar" style="width:${progress}%"></div></div>
                     <div class="progress-label">${completed} / ${total} (${progress}%)</div>
@@ -2936,26 +3003,26 @@ function togglePin(id) {
             </div>
             <div class="summary-section">
                 <div class="summary-stats">
-                    <div class="summary-stat-box accent"><div class="num">${completed}</div><div class="label">已完成</div></div>
-                    <div class="summary-stat-box"><div class="num">${remaining}</div><div class="label">待完成</div></div>
+                    <div class="summary-stat-box accent"><div class="num">${completed}</div><div class="label">${t('summaryCompleted')}</div></div>
+                    <div class="summary-stat-box"><div class="num">${remaining}</div><div class="label">${t('summaryRemaining')}</div></div>
                 </div>
             </div>
             ${remaining > 0 ? `
             <div class="summary-section">
-                <div class="summary-section-title">⚡ 待办优先级</div>
+                <div class="summary-section-title">⚡ ${t('summaryPriority')}</div>
                 <div class="priority-summary">
-                    <div class="priority-badge high"><span class="num">${highP}</span><span class="label">十分紧急</span></div>
-                    <div class="priority-badge medium"><span class="num">${medP}</span><span class="label">较为紧急</span></div>
-                    <div class="priority-badge low"><span class="num">${lowP}</span><span class="label">一般</span></div>
+                    <div class="priority-badge high"><span class="num">${highP}</span><span class="label">${t('high')}</span></div>
+                    <div class="priority-badge medium"><span class="num">${medP}</span><span class="label">${t('medium')}</span></div>
+                    <div class="priority-badge low"><span class="num">${lowP}</span><span class="label">${t('low')}</span></div>
                 </div>
             </div>` : ''}
             ${completed > 0 ? `
             <div class="summary-section">
-                <div class="summary-section-title">✅ 已完成</div>
+                <div class="summary-section-title">✅ ${t('summaryDoneTitle')}</div>
                 <div class="summary-list">
-                    ${cHigh > 0 ? `<div class="summary-list-item"><span>🔴</span><span class="text">十分紧急</span><span class="count">${cHigh} 项</span></div>` : ''}
-                    ${cMed > 0 ? `<div class="summary-list-item"><span>🟠</span><span class="text">较为紧急</span><span class="count">${cMed} 项</span></div>` : ''}
-                    ${cLow > 0 ? `<div class="summary-list-item"><span>🟢</span><span class="text">一般</span><span class="count">${cLow} 项</span></div>` : ''}
+                    ${cHigh > 0 ? `<div class="summary-list-item"><span>🔴</span><span class="text">${t('high')}</span><span class="count">${cHigh}</span></div>` : ''}
+                    ${cMed > 0 ? `<div class="summary-list-item"><span>🟠</span><span class="text">${t('medium')}</span><span class="count">${cMed}</span></div>` : ''}
+                    ${cLow > 0 ? `<div class="summary-list-item"><span>🟢</span><span class="text">${t('low')}</span><span class="count">${cLow}</span></div>` : ''}
                 </div>
             </div>` : ''}
             <div class="summary-section">
@@ -2963,7 +3030,7 @@ function togglePin(id) {
                     <span class="emoji">${emoji}</span>
                     <div class="text">${msg}</div>
                 </div>
-                <button class="btn-report" onclick="generateReport()">📋 生成工作汇报</button>
+                <button class="btn-report" onclick="generateReport()">📋 ${t('generateReport')}</button>
             </div>`;
     }
 
@@ -2975,18 +3042,17 @@ function togglePin(id) {
         const done = todos.filter(t => t.completed&&t.completedAt ? (new Date(t.completedAt)>=s&&new Date(t.completedAt)<=e) : false);
         const remain = created.filter(t => !t.completed);
         const dateStr = `${d.getMonth()+1}月${d.getDate()}日`;
-        const plabels = { high:'十分紧急', medium:'较为紧急', low:'一般' };
         const ci = created.map(t => `<div class="summary-list-item ${t.completed?'completed-item':''}"><span>${t.completed?'✅':'○'}</span><span class="text">${escapeHtml(t.text)}</span></div>`).join('')||'<div class="empty-tip">0</div>';
         const di = done.map(t => `<div class="summary-list-item completed-item"><span>✅</span><span class="text">${escapeHtml(t.text)}</span></div>`).join('')||'<div class="empty-tip">0</div>';
         container.innerHTML = `
-            <div class="back-to-today"><button class="back-btn" onclick="resetToToday()">← 返回今日</button><span class="date-label">${dateStr}</span></div>
+            <div class="back-to-today"><button class="back-btn" onclick="resetToToday()">← ${t('backToToday')}</button><span class="date-label">${dateStr}</span></div>
             <div class="summary-section"><div class="summary-stats">
-                <div class="summary-stat-box"><div class="num">${created.length}</div><div class="label">新建</div></div>
-                <div class="summary-stat-box accent"><div class="num">${done.length}</div><div class="label">完成</div></div>
-                <div class="summary-stat-box"><div class="num">${remain.length}</div><div class="label">待完成</div></div>
+                <div class="summary-stat-box"><div class="num">${created.length}</div><div class="label">${t('summaryNew')}</div></div>
+                <div class="summary-stat-box accent"><div class="num">${done.length}</div><div class="label">${t('summaryDone')}</div></div>
+                <div class="summary-stat-box"><div class="num">${remain.length}</div><div class="label">${t('summaryRemaining')}</div></div>
             </div></div>
-            <div class="summary-section"><div class="summary-section-title">📝 新建（${created.length}）</div><div class="summary-list">${ci}</div></div>
-            <div class="summary-section"><div class="summary-section-title">✅ 完成（${done.length}）</div><div class="summary-list">${di}</div></div>`;
+            <div class="summary-section"><div class="summary-section-title">📝 ${t('summaryCreateTitle')} (${created.length})</div><div class="summary-list">${ci}</div></div>
+            <div class="summary-section"><div class="summary-section-title">✅ ${t('summaryDoneTitle')} (${done.length})</div><div class="summary-list">${di}</div></div>`;
     }
 
     function resetToToday() {
@@ -3001,7 +3067,7 @@ function togglePin(id) {
         let et = todos;
         if (currentFilter === 'active') et = todos.filter(t => !t.completed);
         else if (currentFilter === 'completed') et = todos.filter(t => t.completed);
-        if (!et.length) { alert('暂无待办事项可导出'); return; }
+        if (!et.length) { alert(t('exportNoTodos')); return; }
         if (format === 'xlsx') exportToExcel(et);
         else exportToDocx(et);
     }
@@ -3009,30 +3075,34 @@ function togglePin(id) {
     function exportToExcel(et) {
         const now = new Date();
         const ds = `${now.getFullYear()}${String(now.getMonth()+1).padStart(2,'0')}${String(now.getDate()).padStart(2,'0')}`;
-        const pl = { high:'十分紧急', medium:'较为紧急', low:'一般' };
-        const data = [['状态','事项内容','优先级','创建时间','完成时间']];
-        et.forEach(t => data.push([t.completed?'已完成':'待完成', t.text, pl[t.priority]||'一般', t.createTime?new Date(t.createTime).toLocaleString('zh-CN'):'', t.completedAt?new Date(t.completedAt).toLocaleString('zh-CN'):'']));
-        data.push([],['统计'],['总计',et.length],['十分紧急',et.filter(t=>t.priority==='high').length],['较为紧急',et.filter(t=>t.priority==='medium').length],['一般',et.filter(t=>t.priority==='low').length]);
+        const pl = { high:t('high'), medium:t('medium'), low:t('low') };
+        const completedLabel = t('completed');
+        const activeLabel = t('active');
+        const data = [[t('exportStatus'), t('exportContent'), t('exportPriority'), t('exportCreateTime'), t('exportCompleteTime')]];
+        et.forEach(t => data.push([t.completed?completedLabel:activeLabel, t.text, pl[t.priority]||t('low'), t.createTime?new Date(t.createTime).toLocaleString(currentLang === 'zh' ? 'zh-CN' : 'en-US'):'', t.completedAt?new Date(t.completedAt).toLocaleString(currentLang === 'zh' ? 'zh-CN' : 'en-US'):'']));
+        data.push([''],[t('exportStats')],[t('exportTotal'),et.length],[t('high'),et.filter(t=>t.priority==='high').length],[t('medium'),et.filter(t=>t.priority==='medium').length],[t('low'),et.filter(t=>t.priority==='low').length]);
         const ws = XLSX.utils.aoa_to_sheet(data);
         const wb = XLSX.utils.book_new();
-        XLSX.utils.book_append_sheet(wb, ws, '待办清单');
+        XLSX.utils.book_append_sheet(wb, ws, t('exportSheetName'));
         ws['!cols'] = [{wch:10},{wch:40},{wch:12},{wch:20},{wch:20}];
-        XLSX.writeFile(wb, `待办清单_${ds}.xlsx`);
+        XLSX.writeFile(wb, `${t('exportSheetName')}_${ds}.xlsx`);
     }
 
     function exportToDocx(et) {
         const { Document, Packer, Paragraph, TextRun } = docx;
         const now = new Date();
-        const ds = `${now.getFullYear()}年${now.getMonth()+1}月${now.getDate()}日`;
-        const pl = { high:'十分紧急', medium:'较为紧急', low:'一般' };
+        const monthStr = currentLang === 'zh' ? `${now.getFullYear()}年${now.getMonth()+1}月${now.getDate()}日` : now.toLocaleDateString('en-US', { year:'numeric', month:'long', day:'numeric' });
+        const pl = { high:t('high'), medium:t('medium'), low:t('low') };
+        const completedLabel = t('completed');
+        const totalLabel = currentLang === 'zh' ? `共计 ${et.length} 项` : `Total: ${et.length} items`;
         const children = [
-            new Paragraph({ children: [new TextRun({ text:`待办事项清单 ${ds}`, bold:true, size:32 })], spacing:{ before:200, after:400 } }),
-            new Paragraph({ children: [new TextRun({ text:`共计 ${et.length} 项`, size:24 })], spacing:{ after:400 } })
+            new Paragraph({ children: [new TextRun({ text:`${t('exportSheetName')} ${monthStr}`, bold:true, size:32 })], spacing:{ before:200, after:400 } }),
+            new Paragraph({ children: [new TextRun({ text:totalLabel, size:24 })], spacing:{ after:400 } })
         ];
         const groups = [
-            { key:'high', label:'【十分紧急】', color:'FF0000', items:et.filter(t=>t.priority==='high') },
-            { key:'medium', label:'【较为紧急】', color:'FF8C00', items:et.filter(t=>t.priority==='medium') },
-            { key:'low', label:'【一般】', color:'228B22', items:et.filter(t=>t.priority==='low') }
+            { key:'high', label:`【${t('high')}】`, color:'FF0000', items:et.filter(t=>t.priority==='high') },
+            { key:'medium', label:`【${t('medium')}】`, color:'FF8C00', items:et.filter(t=>t.priority==='medium') },
+            { key:'low', label:`【${t('low')}】`, color:'228B22', items:et.filter(t=>t.priority==='low') }
         ];
         groups.forEach(g => {
             if (!g.items.length) return;
@@ -3047,10 +3117,10 @@ function togglePin(id) {
         Packer.toBlob(doc).then(blob => {
             const url = URL.createObjectURL(blob);
             const a = document.createElement('a');
-            a.href = url; a.download = `待办清单_${fds}.docx`;
+            a.href = url; a.download = `${t('exportSheetName')}_${fds}.docx`;
             a.click(); URL.revokeObjectURL(url);
             playSound('complete');
-        }).catch(() => alert('导出失败，请重试'));
+        }).catch(() => alert(t('exportFailed')));
     }
 
     function importTodoList(event) {
@@ -3064,18 +3134,25 @@ function togglePin(id) {
                 const ws = wb.Sheets[wb.SheetNames[0]];
                 const jd = XLSX.utils.sheet_to_json(ws, { header:1 });
                 let cnt = 0;
-                const pm = { '十分紧急':'high', '较为紧急':'medium', '一般':'low' };
+                // Support both zh and en priority labels for import
+                const pm = {
+                    '十分紧急':'high', 'Critical':'high',
+                    '较为紧急':'medium', 'Urgent':'medium',
+                    '一般':'low', 'Normal':'low'
+                };
+                const skipLabels = ['统计','总计','十分紧急','较为紧急','一般','Stats','Total','Critical','Urgent','Normal'];
+                const completedLabels = ['已完成','Completed'];
                 for (let i=1; i<jd.length; i++) {
                     const r = jd[i];
-                    if (['统计','总计','十分紧急','较为紧急','一般'].includes(r[0])) continue;
+                    if (skipLabels.includes(r[0])) continue;
                     if (!r[1] || !r[1].toString().trim()) continue;
-                    todos.push({ id:Date.now()+i, text:r[1].toString().trim(), priority:pm[r[2]]||'low', completed:r[0]==='已完成', createTime:new Date().toISOString() });
+                    todos.push({ id:Date.now()+i, text:r[1].toString().trim(), priority:pm[r[2]]||'low', completed:completedLabels.includes(r[0]), createTime:new Date().toISOString() });
                     cnt++;
                 }
                 saveTodos(); renderTodos(); renderSummary();
-                alert(`成功导入 ${cnt} 条待办事项！`);
+                alert(t('importSuccess').replace('{count}', cnt));
                 playSound('add');
-            } catch(err) { playSound('error'); alert('导入失败，请检查文件格式'); }
+            } catch(err) { playSound('error'); alert(t('importFailed')); }
         };
         reader.readAsArrayBuffer(file);
         event.target.value = '';
