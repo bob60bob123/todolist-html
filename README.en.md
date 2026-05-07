@@ -6,14 +6,15 @@
 
 ## Overview
 
-A single-file HTML ToDo application with Chinese UI. No build system, no framework dependencies.
+A single-file HTML ToDo application with multi-language support (Chinese / English / Japanese). No build system, no framework dependencies.
 
 **Demo**: Open `ToDoList.html` directly in your browser.
 
 ## Features
 
-- CRUD operations with priority levels (十分紧急 / 较为紧急 / 一般)
+- CRUD operations with priority levels (Critical / Urgent / Normal)
 - **Inline text editing** - Click todo text to edit, auto-save on blur
+- **Pin to top** - Pin important items to the top, multiple pins supported
 - Custom categories
 - Period statistics (today, this week, this month, this quarter, this year)
 - Filter by: all, active, completed, by creation time, by completion time, by category
@@ -24,6 +25,7 @@ A single-file HTML ToDo application with Chinese UI. No build system, no framewo
 - Sound effects
 - **Trash bin** - Recover accidentally deleted items, permanent delete option
 - Responsive design
+- **Multi-language** - 中文 / English / 日本語
 
 ## Quick Start
 
