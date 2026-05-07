@@ -2240,7 +2240,7 @@
         const category = document.getElementById('categorySelect').value;
         const text = input.value.trim();
         if (!text) { input.focus(); return; }
-        todos.unshift({ id: Date.now(), text, priority, category, completed: false, createTime: new Date().toISOString() });
+        todos.unshift({ id: Date.now(), text, priority, category, completed: false, createTime: new Date().toISOString(), pinned: false });
         saveTodos(); renderTodos(); renderSummary();
         input.value = ''; input.focus();
         playSound('add');
