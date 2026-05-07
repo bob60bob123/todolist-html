@@ -1954,6 +1954,7 @@
     todos.forEach(t => {
         if (t.completed && !t.completedAt) t.completedAt = t.createTime || t.createdAt || new Date().toISOString();
         if (!t.category || t.category === 'default') t.category = '工作';
+        if (t.pinned === undefined) t.pinned = false;
     });
     if (todos.some(t => t.completed && !localStorage.getItem('todos_completedAt_backfilled'))) {
         localStorage.setItem('todos', JSON.stringify(todos));
