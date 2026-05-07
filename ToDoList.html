@@ -1329,6 +1329,174 @@
             margin: 4px 0;
         }
 
+        /* ===== Trash Bin Button ===== */
+        .trash-btn {
+            position: relative;
+            padding: 8px 14px;
+            font-size: 14px;
+            color: var(--text-secondary);
+            background: var(--bg-primary);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .trash-btn:hover {
+            background: var(--surface-solid);
+            color: var(--text-primary);
+        }
+
+        .trash-btn.active {
+            background: var(--surface-solid);
+            color: var(--primary);
+            border-color: var(--primary-light);
+        }
+
+        .trash-badge {
+            position: absolute;
+            top: -6px;
+            right: -6px;
+            min-width: 18px;
+            height: 18px;
+            padding: 0 5px;
+            font-size: 11px;
+            font-weight: 600;
+            color: white;
+            background: var(--danger);
+            border-radius: 9px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* ===== Trash Bin Modal ===== */
+        .trash-modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.4);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 2000;
+        }
+
+        .trash-modal {
+            background: var(--surface-solid);
+            border-radius: 16px;
+            width: 90%;
+            max-width: 500px;
+            max-height: 70vh;
+            overflow: hidden;
+            box-shadow: var(--shadow-lg);
+        }
+
+        .trash-modal-header {
+            padding: 16px 20px;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .trash-modal-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .trash-modal-close {
+            width: 32px;
+            height: 32px;
+            border: none;
+            background: transparent;
+            font-size: 20px;
+            color: var(--text-secondary);
+            cursor: pointer;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .trash-modal-close:hover {
+            background: var(--bg-primary);
+        }
+
+        .trash-modal-body {
+            padding: 12px;
+            max-height: calc(70vh - 60px);
+            overflow-y: auto;
+        }
+
+        .trash-empty {
+            padding: 40px 20px;
+            text-align: center;
+            color: var(--text-tertiary);
+        }
+
+        .trash-item {
+            padding: 12px 16px;
+            border-radius: 10px;
+            margin-bottom: 8px;
+            background: var(--bg-primary);
+        }
+
+        .trash-item:last-child {
+            margin-bottom: 0;
+        }
+
+        .trash-item-content {
+            font-size: 14px;
+            color: var(--text-primary);
+            margin-bottom: 6px;
+            word-break: break-word;
+        }
+
+        .trash-item-meta {
+            font-size: 12px;
+            color: var(--text-tertiary);
+            margin-bottom: 10px;
+        }
+
+        .trash-item-actions {
+            display: flex;
+            gap: 8px;
+            justify-content: flex-end;
+        }
+
+        .trash-btn-restore {
+            padding: 6px 14px;
+            font-size: 13px;
+            color: var(--primary);
+            background: var(--primary-light);
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+        }
+
+        .trash-btn-restore:hover {
+            background: var(--primary);
+            color: white;
+        }
+
+        .trash-btn-delete {
+            padding: 6px 14px;
+            font-size: 13px;
+            color: var(--danger);
+            background: transparent;
+            border: 1px solid var(--danger-bg);
+            border-radius: 6px;
+            cursor: pointer;
+        }
+
+        .trash-btn-delete:hover {
+            background: var(--danger-bg);
+        }
+
         .search-wrapper {
             position: relative;
             display: flex;
@@ -1641,8 +1809,24 @@
                         <div class="export-option" onclick="doExport('xlsx', 'byCategory')">📊 导出Excel - 按分类</div>
                     </div>
                 </div>
+                <button class="trash-btn" id="trashBtn" onclick="toggleTrashBin()">
+                    🗑️ 回收站
+                    <span class="trash-badge" id="trashBadge" style="display:none">0</span>
+                </button>
                 <button class="btn-icon" onclick="document.getElementById('importFile').click()">📤 导入</button>
                 <input type="file" id="importFile" accept=".xlsx,.xls,.docx" style="display:none" onchange="importTodoList(event)">
+            </div>
+            <!-- Trash Bin Modal -->
+            <div class="trash-modal-overlay" id="trashModal" style="display:none" onclick="closeTrashBin()">
+                <div class="trash-modal" onclick="event.stopPropagation()">
+                    <div class="trash-modal-header">
+                        <div class="trash-modal-title">🗑️ 回收站</div>
+                        <button class="trash-modal-close" onclick="closeTrashBin()">✕</button>
+                    </div>
+                    <div class="trash-modal-body" id="trashModalBody">
+                        <!-- Trash items rendered here -->
+                    </div>
+                </div>
             </div>
         </div>
 
@@ -1776,6 +1960,10 @@
         localStorage.setItem('todos_completedAt_backfilled', '1');
     }
     localStorage.setItem('todos', JSON.stringify(todos));
+
+    let trashBin = JSON.parse(localStorage.getItem('trashBin')) || [];
+
+    function saveTrashBin() { localStorage.setItem('trashBin', JSON.stringify(trashBin)); }
 
     let categories = JSON.parse(localStorage.getItem('todoCategories')) || ['工作'];
     const defaultCategoryValue = '工作';
@@ -1959,6 +2147,7 @@
         updateCategorySelect();
         renderTodos();
         renderSummary();
+        updateTrashBadge();
         applyI18n();
     });
 
@@ -2195,9 +2384,104 @@ function toggleTodo(id) {
     }
 
     function deleteTodo(id) {
+        moveToTrashBin(id);
+    }
+
+    function moveToTrashBin(id) {
+        const todo = todos.find(t => t.id === id);
+        if (!todo) return;
+
+        todo.deletedAt = new Date().toISOString();
+        trashBin.unshift(todo);
         todos = todos.filter(t => t.id !== id);
-        saveTodos(); renderTodos(); renderSummary();
+
+        saveTodos();
+        saveTrashBin();
+        renderTodos();
+        renderSummary();
+        updateTrashBadge();
         playSound('delete');
+    }
+
+    function restoreFromTrash(id) {
+        const todo = trashBin.find(t => t.id === id);
+        if (!todo) return;
+
+        delete todo.deletedAt;
+        todos.unshift(todo);
+        trashBin = trashBin.filter(t => t.id !== id);
+
+        saveTodos();
+        saveTrashBin();
+        renderTrashBin();
+        renderTodos();
+        renderSummary();
+        updateTrashBadge();
+    }
+
+    function permanentDelete(id) {
+        if (!confirm('确定要永久删除此事项吗？此操作不可恢复。')) return;
+
+        trashBin = trashBin.filter(t => t.id !== id);
+        saveTrashBin();
+        renderTrashBin();
+        updateTrashBadge();
+    }
+
+    function toggleTrashBin() {
+        const modal = document.getElementById('trashModal');
+        const btn = document.getElementById('trashBtn');
+        const isOpen = modal.style.display !== 'none';
+
+        if (isOpen) {
+            closeTrashBin();
+        } else {
+            modal.style.display = 'flex';
+            btn.classList.add('active');
+            renderTrashBin();
+        }
+    }
+
+    function closeTrashBin() {
+        const modal = document.getElementById('trashModal');
+        const btn = document.getElementById('trashBtn');
+        modal.style.display = 'none';
+        btn.classList.remove('active');
+    }
+
+    function renderTrashBin() {
+        const body = document.getElementById('trashModalBody');
+
+        if (trashBin.length === 0) {
+            body.innerHTML = '<div class="trash-empty">🗑️ 回收站为空</div>';
+            return;
+        }
+
+        body.innerHTML = trashBin.map(todo => {
+            const deletedDate = todo.deletedAt ? new Date(todo.deletedAt).toLocaleString('zh-CN', {
+                year: 'numeric', month: '2-digit', day: '2-digit',
+                hour: '2-digit', minute: '2-digit'
+            }).replace(/\//g, '-') : '';
+
+            return `<div class="trash-item">
+                <div class="trash-item-content">${escapeHtml(todo.text)}</div>
+                <div class="trash-item-meta">删除于 ${deletedDate}</div>
+                <div class="trash-item-actions">
+                    <button class="trash-btn-restore" onclick="restoreFromTrash(${todo.id})">恢复</button>
+                    <button class="trash-btn-delete" onclick="permanentDelete(${todo.id})">永久删除</button>
+                </div>
+            </div>`;
+        }).join('');
+    }
+
+    function updateTrashBadge() {
+        const badge = document.getElementById('trashBadge');
+        if (trashBin.length > 0) {
+            badge.textContent = trashBin.length;
+            badge.style.display = 'flex';
+        } else {
+            badge.style.display = 'none';
+        }
     }
 
     function toggleExportMenu() {
@@ -2852,6 +3136,11 @@ function copyReport() {
         if (dropdown && !dropdown.contains(e.target)) {
             menu.style.display = 'none';
             dropdown.classList.remove('open');
+        }
+        const trashModal = document.getElementById('trashModal');
+        const trashBtn = document.getElementById('trashBtn');
+        if (trashModal && trashModal.style.display !== 'none' && !trashModal.contains(e.target) && trashBtn && !trashBtn.contains(e.target)) {
+            closeTrashBin();
         }
     });
 </script>

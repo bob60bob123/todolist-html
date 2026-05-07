@@ -22,6 +22,7 @@ A single-file HTML ToDo application with Chinese UI. No build system, no framewo
 - Import from Excel
 - Work report generation
 - Sound effects
+- **Trash bin** - Recover accidentally deleted items, permanent delete option
 - Responsive design
 
 ## Quick Start
