@@ -13,6 +13,7 @@ A single-file HTML ToDo application with Chinese UI. No build system, no framewo
 ## Features
 
 - CRUD operations with priority levels (十分紧急 / 较为紧急 / 一般)
+- **Inline text editing** - Click todo text to edit, auto-save on blur
 - Custom categories
 - Period statistics (today, this week, this month, this quarter, this year)
 - Filter by: all, active, completed, by creation time, by completion time, by category
