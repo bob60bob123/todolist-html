@@ -2685,6 +2685,7 @@ function togglePin(id) {
                 <select class="category-editor" id="category-editor-${todo.id}" onchange="changeCategory(${todo.id}, this.value)" onblur="hideCategoryEditor(${todo.id})" style="display:none">
                     ${categories.map(c => `<option value="${escapeHtml(c)}">${escapeHtml(c)}</option>`).join('')}
                 </select>
+                <button class="pin-btn ${todo.pinned ? 'pinned' : ''}" onclick="togglePin(${todo.id})" title="置顶">📌</button>
                 <button class="delete-btn" onclick="deleteTodo(${todo.id})" title="删除">✕</button>
             </div>`;
         }).join('');
@@ -2747,6 +2748,7 @@ function togglePin(id) {
                     <select class="category-editor" id="category-editor-${todo.id}" onchange="changeCategory(${todo.id}, this.value)" onblur="hideCategoryEditor(${todo.id})" style="display:none">
                         ${categories.map(c => `<option value="${escapeHtml(c)}">${escapeHtml(c)}</option>`).join('')}
                     </select>
+                    <button class="pin-btn ${todo.pinned ? 'pinned' : ''}" onclick="togglePin(${todo.id})" title="置顶">📌</button>
                     <button class="delete-btn" onclick="deleteTodo(${todo.id})" title="删除">✕</button>
                 </div>`;
             }).join('');
@@ -2813,6 +2815,7 @@ function togglePin(id) {
                     <select class="category-editor" id="category-editor-${todo.id}" onchange="changeCategory(${todo.id}, this.value)" onblur="hideCategoryEditor(${todo.id})" style="display:none">
                         ${categories.map(c => `<option value="${escapeHtml(c)}">${escapeHtml(c)}</option>`).join('')}
                     </select>
+                    <button class="pin-btn ${todo.pinned ? 'pinned' : ''}" onclick="togglePin(${todo.id})" title="置顶">📌</button>
                     <button class="delete-btn" onclick="deleteTodo(${todo.id})" title="删除">✕</button>
                 </div>`;
             }).join('');
@@ -2876,6 +2879,7 @@ function togglePin(id) {
                     <select class="category-editor" id="category-editor-${todo.id}" onchange="changeCategory(${todo.id}, this.value)" onblur="hideCategoryEditor(${todo.id})" style="display:none">
                         ${categories.map(c => `<option value="${escapeHtml(c)}">${escapeHtml(c)}</option>`).join('')}
                     </select>
+                    <button class="pin-btn ${todo.pinned ? 'pinned' : ''}" onclick="togglePin(${todo.id})" title="置顶">📌</button>
                     <button class="delete-btn" onclick="deleteTodo(${todo.id})" title="删除">✕</button>
                 </div>`;
             }).join('');
