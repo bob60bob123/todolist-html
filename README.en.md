@@ -16,7 +16,7 @@ A single-file HTML ToDo application with multi-language support (Chinese / Engli
 - **Inline text editing** - Click todo text to edit, auto-save on blur
 - **Pin to top** - Pin important items to the top, multiple pins supported
 - Custom categories
-- Period statistics (today, this week, this month, this quarter, this year)
+- Period statistics (today, past n days, flexible week/month/quarter/year selection)
 - Filter by: all, active, completed, by creation time, by completion time, by category
 - Real-time search
 - Export to DOCX / Excel
