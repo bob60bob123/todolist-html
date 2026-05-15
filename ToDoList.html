@@ -800,8 +800,8 @@
             border-radius: var(--radius-xl);
             box-shadow: var(--shadow-lg);
             border: 1px solid var(--border);
-            overflow: hidden;
             position: relative;
+            overflow: visible;
         }
 
         .summary-card::before {
@@ -819,7 +819,6 @@
             color: white;
             padding: 28px 28px 24px;
             position: relative;
-            overflow: hidden;
         }
 
         .summary-header::before {
@@ -1878,12 +1877,21 @@
                     <button class="summary-tab" data-period="past1d" onclick="switchSummaryPeriod('past1d')">过去1日</button>
                     <button class="summary-tab" data-period="past2d" onclick="switchSummaryPeriod('past2d')">过去2日</button>
                     <button class="summary-tab" data-period="past3d" onclick="switchSummaryPeriod('past3d')">过去3日</button>
-                    <button class="summary-tab" data-period="pastweek" onclick="switchSummaryPeriod('pastweek')">过去一周</button>
                     <button class="summary-tab active" data-period="day" onclick="switchSummaryPeriod('day')">今日</button>
-                    <button class="summary-tab" data-period="week" onclick="switchSummaryPeriod('week')">本周</button>
-                    <button class="summary-tab" data-period="month" onclick="switchSummaryPeriod('month')">本月</button>
-                    <button class="summary-tab" data-period="quarter" onclick="switchSummaryPeriod('quarter')">本季</button>
-                    <button class="summary-tab" data-period="year" onclick="switchSummaryPeriod('year')">全年</button>
+                    <div class="period-selector-wrapper" style="display:inline-block;position:relative">
+                        <button class="summary-tab period-selector-btn" id="periodSelectorBtn" onclick="togglePeriodSelector()">
+                            📅 <span id="periodSelectorLabel">周期选择</span>
+                        </button>
+                        <div class="period-dropdown" id="periodDropdown" style="display:none;position:absolute;top:100%;left:0;background:#fff;border:1px solid #ddd;border-radius:8px;box-shadow:0 4px 12px rgba(0,0,0,0.15);z-index:9999;min-width:320px;padding:12px">
+                            <div class="period-tabs" style="display:flex;border-bottom:1px solid #eee;margin-bottom:10px">
+                                <button class="period-tab active" data-type="week" onclick="switchPeriodType('week')" style="padding:8px 16px;border:none;background:none;cursor:pointer;font-weight:600;border-bottom:2px solid #007bff">周度</button>
+                                <button class="period-tab" data-type="month" onclick="switchPeriodType('month')" style="padding:8px 16px;border:none;background:none;cursor:pointer;font-weight:600">月度</button>
+                                <button class="period-tab" data-type="quarter" onclick="switchPeriodType('quarter')" style="padding:8px 16px;border:none;background:none;cursor:pointer;font-weight:600">季度</button>
+                                <button class="period-tab" data-type="year" onclick="switchPeriodType('year')" style="padding:8px 16px;border:none;background:none;cursor:pointer;font-weight:600">年度</button>
+                            </div>
+                            <div class="period-options" id="periodOptions" style="max-height:300px;overflow-y:auto"></div>
+                        </div>
+                    </div>
                 </div>
             </div>
             <div class="summary-content" id="summaryContent"></div>
@@ -1983,6 +1991,17 @@
             }
         } catch (e) { /* Audio not supported */ }
     }
+
+    let currentPeriodType = 'week'; // 'week' | 'month' | 'quarter' | 'year'
+    let currentPeriodValue = ''; // 如 '2026-W20', '2026-05', '2026-Q2', '2026'
+
+    document.addEventListener('click', function(e) {
+        const dropdown = document.getElementById('periodDropdown');
+        const btn = document.getElementById('periodSelectorBtn');
+        if (dropdown && btn && !dropdown.contains(e.target) && !btn.contains(e.target)) {
+            dropdown.style.display = 'none';
+        }
+    });
 
     let todos = JSON.parse(localStorage.getItem('todos')) || [];
     todos.forEach(t => {
@@ -2096,8 +2115,10 @@
             noMatch: '未找到匹配的待办事项',
             filterAll: '全部', filterActive: '待完成', filterCompleted: '已完成',
             filterByCreate: '按创建时间', filterByComplete: '按完成时间', filterByCategory: '按分类', filterByPriority: '按紧急程度',
-            periodPast1d: '过去1日', periodPast2d: '过去2日', periodPast3d: '过去3日', periodPastweek: '过去一周',
-            periodDay: '今日', periodWeek: '本周', periodMonth: '本月', periodQuarter: '本季', periodYear: '本年',
+            periodPast1d: '过去1日', periodPast2d: '过去2日', periodPast3d: '过去3日',
+            periodDay: '今日', periodSelector: '周期选择',
+            periodWeekTab: '周度', periodMonthTab: '月度', periodQuarterTab: '季度', periodYearTab: '年度',
+            periodWeek: '本周', periodMonth: '本月', periodQuarter: '本季', periodYear: '本年',
             defaultCategory: '工作', confirmDelete: '该分类下有 {count} 个待办事项，确定要删除吗？',
             // Summary i18n
             summaryTitle: '工作总结', summaryProgress: '完成进度',
@@ -2144,8 +2165,10 @@
             noMatch: 'No matching to-dos found',
             filterAll: 'All', filterActive: 'Active', filterCompleted: 'Completed',
             filterByCreate: 'By Create Time', filterByComplete: 'By Complete Time', filterByCategory: 'By Category', filterByPriority: 'By Priority',
-            periodPast1d: 'Past 1 Day', periodPast2d: 'Past 2 Days', periodPast3d: 'Past 3 Days', periodPastweek: 'Past Week',
-            periodDay: 'Today', periodWeek: 'This Week', periodMonth: 'This Month', periodQuarter: 'This Quarter', periodYear: 'This Year',
+            periodPast1d: 'Past 1 Day', periodPast2d: 'Past 2 Days', periodPast3d: 'Past 3 Days',
+            periodDay: 'Today', periodSelector: 'Period',
+            periodWeekTab: 'Week', periodMonthTab: 'Month', periodQuarterTab: 'Quarter', periodYearTab: 'Year',
+            periodWeek: 'This Week', periodMonth: 'This Month', periodQuarter: 'This Quarter', periodYear: 'This Year',
             defaultCategory: 'Work', confirmDelete: 'This category has {count} to-dos. Delete anyway?',
             // Summary i18n
             summaryTitle: 'Summary', summaryProgress: 'Progress',
@@ -2228,10 +2251,21 @@
 
         // Update summary header and tabs
         document.querySelector('.summary-header h2').innerHTML = `📊 ${t('summaryTitle')}`;
-        const periodKeys = ['past1d', 'past2d', 'past3d', 'pastweek', 'day', 'week', 'month', 'quarter', 'year'];
-        const periodLabels = [t('periodPast1d'), t('periodPast2d'), t('periodPast3d'), t('periodPastweek'), t('periodDay'), t('periodWeek'), t('periodMonth'), t('periodQuarter'), t('periodYear')];
+        // 只有5个固定周期按钮需要更新标签
+        const periodLabels = [t('periodPast1d'), t('periodPast2d'), t('periodPast3d'), t('periodDay')];
         document.querySelectorAll('.summary-tab').forEach((btn, i) => {
-            if (periodLabels[i]) btn.textContent = periodLabels[i];
+            if (i < periodLabels.length && periodLabels[i]) btn.textContent = periodLabels[i];
+        });
+        // 更新周期选择器按钮
+        const periodSelectorLabel = document.getElementById('periodSelectorLabel');
+        if (periodSelectorLabel) {
+            periodSelectorLabel.textContent = t('periodSelector');
+        }
+
+        // 更新周期选择器选项卡标签
+        document.querySelectorAll('.period-tab').forEach((tab, i) => {
+            const labels = [t('periodWeekTab'), t('periodMonthTab'), t('periodQuarterTab'), t('periodYearTab')];
+            if (labels[i]) tab.textContent = labels[i];
         });
 
         // Update export menu items
@@ -2273,15 +2307,277 @@
         applyI18n();
     });
 
+    // ========== Period Selector Functions ==========
+
+    function togglePeriodSelector() {
+        const dropdown = document.getElementById('periodDropdown');
+        const isVisible = dropdown.style.display !== 'none';
+
+        if (isVisible) {
+            dropdown.style.display = 'none';
+        } else {
+            renderPeriodOptions(currentPeriodType);
+            dropdown.style.display = 'block';
+        }
+    }
+
+    function switchPeriodType(type) {
+        currentPeriodType = type;
+
+        // 更新选项卡样式
+        document.querySelectorAll('.period-tab').forEach(tab => {
+            tab.style.borderBottom = tab.dataset.type === type ? '2px solid #007bff' : 'none';
+        });
+
+        renderPeriodOptions(type);
+    }
+
+    function renderPeriodOptions(type) {
+        const container = document.getElementById('periodOptions');
+        let html = '';
+
+        if (type === 'week') {
+            const weekOptions = getWeekOptions();
+            weekOptions.forEach(group => {
+                html += `<div style="margin-bottom:12px">
+                    <div style="font-size:12px;color:#666;margin-bottom:4px;font-weight:600">${group.month}月</div>
+                    <div style="display:flex;flex-wrap:wrap;gap:4px">`;
+                group.weeks.forEach(w => {
+                    const isActive = currentPeriodValue === w.value ? 'background:#e3f2fd;border-color:#007bff' : '';
+                    html += `<button class="period-option" onclick="selectPeriod('${w.value}')" style="padding:4px 8px;font-size:11px;border:1px solid #ddd;background:#fff;border-radius:4px;cursor:pointer;${isActive}">${w.label}</button>`;
+                });
+                html += `</div></div>`;
+            });
+        } else if (type === 'month') {
+            const monthOptions = getMonthOptions();
+            monthOptions.forEach(group => {
+                html += `<div style="margin-bottom:12px">
+                    <div style="font-size:12px;color:#666;margin-bottom:4px;font-weight:600">${group.year}年</div>
+                    <div style="display:flex;flex-wrap:wrap;gap:4px">`;
+                group.months.forEach(m => {
+                    const isActive = currentPeriodValue === m.value ? 'background:#e3f2fd;border-color:#007bff' : '';
+                    html += `<button class="period-option" onclick="selectPeriod('${m.value}')" style="padding:4px 8px;font-size:11px;border:1px solid #ddd;background:#fff;border-radius:4px;cursor:pointer;${isActive}">${m.label}</button>`;
+                });
+                html += `</div></div>`;
+            });
+        } else if (type === 'quarter') {
+            const quarterOptions = getQuarterOptions();
+            quarterOptions.forEach(group => {
+                html += `<div style="margin-bottom:12px">
+                    <div style="font-size:12px;color:#666;margin-bottom:4px;font-weight:600">${group.year}年</div>
+                    <div style="display:flex;flex-wrap:wrap;gap:4px">`;
+                group.quarters.forEach(q => {
+                    const isActive = currentPeriodValue === q.value ? 'background:#e3f2fd;border-color:#007bff' : '';
+                    html += `<button class="period-option" onclick="selectPeriod('${q.value}')" style="padding:4px 8px;font-size:11px;border:1px solid #ddd;background:#fff;border-radius:4px;cursor:pointer;${isActive}">${q.label}</button>`;
+                });
+                html += `</div></div>`;
+            });
+        } else if (type === 'year') {
+            const yearOptions = getYearOptions();
+            html += `<div style="display:flex;flex-wrap:wrap;gap:4px">`;
+            yearOptions.forEach(y => {
+                const isActive = currentPeriodValue === y.value ? 'background:#e3f2fd;border-color:#007bff' : '';
+                html += `<button class="period-option" onclick="selectPeriod('${y.value}')" style="padding:8px 16px;font-size:13px;border:1px solid #ddd;background:#fff;border-radius:4px;cursor:pointer;${isActive}">${y.label}</button>`;
+            });
+            html += `</div>`;
+        }
+
+        container.innerHTML = html;
+    }
+
+    function selectPeriod(value) {
+        currentPeriodValue = value;
+        const period = currentPeriodType + ':' + value;
+        switchSummaryPeriod(period);
+
+        // 更新按钮显示
+        updatePeriodSelectorLabel();
+
+        // 关闭下拉面板
+        document.getElementById('periodDropdown').style.display = 'none';
+
+        // 渲染统计
+        renderSummary();
+    }
+
+    function updatePeriodSelectorLabel() {
+        const labelEl = document.getElementById('periodSelectorLabel');
+        if (!currentPeriodValue) {
+            labelEl.textContent = t('periodSelector');
+            return;
+        }
+
+        if (currentPeriodType === 'week') {
+            const [year, week] = currentPeriodValue.split('-W');
+            labelEl.textContent = `${year}年第${parseInt(week)}周`;
+        } else if (currentPeriodType === 'month') {
+            const [year, month] = currentPeriodValue.split('-');
+            labelEl.textContent = `${year}年${parseInt(month)}月`;
+        } else if (currentPeriodType === 'quarter') {
+            const [year, quarter] = currentPeriodValue.split('-Q');
+            labelEl.textContent = `${year}年第${parseInt(quarter)}季度`;
+        } else if (currentPeriodType === 'year') {
+            labelEl.textContent = `${currentPeriodValue}年`;
+        }
+    }
+
+    // 生成周度选项（本年内所有周，按月分组）
+    function getWeekOptions() {
+        const options = [];
+        const now = new Date();
+        const currentYear = now.getFullYear();
+
+        for (let month = 0; month < 12; month++) {
+            const monthOptions = [];
+            const firstDayOfMonth = new Date(currentYear, month, 1);
+            const lastDayOfMonth = new Date(currentYear, month + 1, 0);
+
+            // 找到该月第一个周一
+            let weekStart = new Date(firstDayOfMonth);
+            weekStart.setDate(weekStart.getDate() - weekStart.getDay() + 1);
+
+            while (weekStart <= lastDayOfMonth) {
+                const weekEnd = new Date(weekStart);
+                weekEnd.setDate(weekEnd.getDate() + 6);
+
+                const weekNum = getWeekNumber(weekStart);
+                const startMonth = (weekStart.getMonth() + 1).toString().padStart(2, '0');
+                const startDay = weekStart.getDate().toString().padStart(2, '0');
+                const endMonth = (weekEnd.getMonth() + 1).toString().padStart(2, '0');
+                const endDay = weekEnd.getDate().toString().padStart(2, '0');
+
+                const label = `${currentYear}年第${weekNum}周 (${startMonth}/${startDay}-${endMonth}/${endDay})`;
+                const value = `${currentYear}-W${weekNum.toString().padStart(2, '0')}`;
+
+                monthOptions.push({ label, value });
+                weekStart.setDate(weekStart.getDate() + 7);
+            }
+
+            if (monthOptions.length > 0) {
+                options.push({ month: month + 1, weeks: monthOptions });
+            }
+        }
+
+        return options;
+    }
+
+    // 获取某日期是第几周
+    function getWeekNumber(date) {
+        const d = new Date(date);
+        d.setHours(0, 0, 0, 0);
+        d.setDate(d.getDate() + 4 - (d.getDay() || 7));
+        const yearStart = new Date(d.getFullYear(), 0, 1);
+        return Math.ceil((((d - yearStart) / 86400000) + 1) / 7);
+    }
+
+    // 生成月度选项（最近12个月，按年分组）
+    function getMonthOptions() {
+        const options = [];
+        const now = new Date();
+
+        for (let i = 0; i < 12; i++) {
+            const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
+            const year = d.getFullYear();
+            const month = d.getMonth() + 1;
+            const label = `${year}年${month.toString().padStart(2, '0')}月`;
+            const value = `${year}-${month.toString().padStart(2, '0')}`;
+
+            if (options.length === 0 || options[options.length - 1].year !== year) {
+                options.push({ year, months: [] });
+            }
+            options[options.length - 1].months.push({ label, value });
+        }
+
+        return options;
+    }
+
+    // 生成季度选项（最近4个季度）
+    function getQuarterOptions() {
+        const options = [];
+        const now = new Date();
+        const currentQuarter = Math.floor(now.getMonth() / 3);
+        const currentYear = now.getFullYear();
+
+        for (let i = 0; i < 4; i++) {
+            let q = currentQuarter - i;
+            let year = currentYear;
+
+            while (q < 0) {
+                q += 4;
+                year--;
+            }
+
+            const label = `${year}年第${q + 1}季度`;
+            const value = `${year}-Q${q + 1}`;
+
+            if (options.length === 0 || options[options.length - 1].year !== year) {
+                options.push({ year, quarters: [] });
+            }
+            options[options.length - 1].quarters.push({ label, value });
+        }
+
+        return options;
+    }
+
+    // 生成年度选项（最近5年）
+    function getYearOptions() {
+        const now = new Date();
+        const currentYear = now.getFullYear();
+        const options = [];
+
+        for (let i = 0; i < 5; i++) {
+            const year = currentYear - i;
+            options.push({
+                label: `${year}年`,
+                value: year.toString()
+            });
+        }
+
+        return options;
+    }
+
     function getPeriodRange(period) {
         const now = new Date();
         const start = new Date(now);
         const end = new Date(now);
-        if (period === 'day') { start.setHours(0,0,0,0); end.setHours(23,59,59,999); }
+
+        // 处理新格式: 'week:2026-W20', 'month:2026-05', 'quarter:2026-Q2', 'year:2026'
+        if (period.includes(':')) {
+            const [type, value] = period.split(':');
+
+            if (type === 'week') {
+                const [year, week] = value.split('-W');
+                const firstDayOfYear = new Date(parseInt(year), 0, 1);
+                const daysOffset = (parseInt(week) - 1) * 7 - firstDayOfYear.getDay() + 1;
+                start.setTime(firstDayOfYear.getTime() + daysOffset * 86400000);
+                start.setHours(0, 0, 0, 0);
+                end.setTime(start.getTime() + 6 * 86400000);
+                end.setHours(23, 59, 59, 999);
+            } else if (type === 'month') {
+                const [year, month] = value.split('-');
+                start.setFullYear(parseInt(year), parseInt(month) - 1, 1);
+                start.setHours(0, 0, 0, 0);
+                end.setFullYear(parseInt(year), parseInt(month), 0);
+                end.setHours(23, 59, 59, 999);
+            } else if (type === 'quarter') {
+                const [year, quarter] = value.split('-Q');
+                const q = parseInt(quarter) - 1;
+                start.setFullYear(parseInt(year), q * 3, 1);
+                start.setHours(0, 0, 0, 0);
+                end.setFullYear(parseInt(year), q * 3 + 3, 0);
+                end.setHours(23, 59, 59, 999);
+            } else if (type === 'year') {
+                start.setFullYear(parseInt(value), 0, 1);
+                start.setHours(0, 0, 0, 0);
+                end.setFullYear(parseInt(value), 11, 31);
+                end.setHours(23, 59, 59, 999);
+            }
+        }
+        else if (period === 'day') { start.setHours(0,0,0,0); end.setHours(23,59,59,999); }
         else if (period === 'past1d') { end.setDate(end.getDate()-1); end.setHours(23,59,59,999); start.setTime(end.getTime()); start.setHours(0,0,0,0); }
         else if (period === 'past2d') { end.setDate(end.getDate()-1); end.setHours(23,59,59,999); start.setDate(start.getDate()-2); start.setHours(0,0,0,0); }
         else if (period === 'past3d') { end.setDate(end.getDate()-1); end.setHours(23,59,59,999); start.setDate(start.getDate()-3); start.setHours(0,0,0,0); }
-        else if (period === 'pastweek') { end.setDate(end.getDate()-1); end.setHours(23,59,59,999); start.setDate(start.getDate()-7); start.setHours(0,0,0,0); }
+        // pastweek 已移除，不再支持
         else if (period === 'week') {
             const d = now.getDay();
             const diff = now.getDate() - d + (d === 0 ? -6 : 1);
@@ -2300,6 +2596,7 @@
             start.setTime(d.getTime()); start.setHours(0,0,0,0);
             end.setTime(d.getTime()); end.setHours(23,59,59,999);
         }
+
         return { start, end };
     }
 
@@ -2319,8 +2616,27 @@
 
     function switchSummaryPeriod(period) {
         currentPeriod = period;
+
+        // 移除所有active类
         document.querySelectorAll('.summary-tab').forEach(t => t.classList.remove('active'));
-        document.querySelector(`.summary-tab[data-period="${period}"]`).classList.add('active');
+
+        // 对于固定周期按钮，直接添加active类
+        const fixedButton = document.querySelector(`.summary-tab[data-period="${period}"]`);
+        if (fixedButton) {
+            fixedButton.classList.add('active');
+        } else if (period.includes(':')) {
+            // 对于新格式周期，激活周期选择器按钮并更新显示
+            const periodSelectorBtn = document.getElementById('periodSelectorBtn');
+            if (periodSelectorBtn) {
+                periodSelectorBtn.classList.add('active');
+            }
+            // 解析period更新currentPeriodType和currentPeriodValue
+            const [type, value] = period.split(':');
+            currentPeriodType = type;
+            currentPeriodValue = value;
+            updatePeriodSelectorLabel();
+        }
+
         renderSummary();
     }
 
@@ -3012,8 +3328,26 @@ function togglePin(id) {
         else if (progress > 0) { emoji = '📈'; msg = t('goodStart').replace('{completed}', completed); }
         else { emoji = '🎯'; msg = t('tasksRemaining').replace('{remaining}', remaining); }
 
-        const periodMap = { past1d: 'periodPast1d', past2d: 'periodPast2d', past3d: 'periodPast3d', pastweek: 'periodPastweek', day: 'periodDay', week: 'periodWeek', month: 'periodMonth', quarter: 'periodQuarter', year: 'periodYear' };
-        const periodLabel = t(periodMap[currentPeriod] || 'periodDay');
+        const periodMap = { past1d: 'periodPast1d', past2d: 'periodPast2d', past3d: 'periodPast3d', day: 'periodDay', week: 'periodWeek', month: 'periodMonth', quarter: 'periodQuarter', year: 'periodYear' };
+        let periodLabel;
+        if (currentPeriod.includes(':')) {
+            // 新格式: week:2026-W20, month:2026-05, quarter:2026-Q2, year:2026
+            const [type, value] = currentPeriod.split(':');
+            if (type === 'week') {
+                const [year, week] = value.split('-W');
+                periodLabel = `${year}年第${parseInt(week)}周`;
+            } else if (type === 'month') {
+                const [year, month] = value.split('-');
+                periodLabel = `${year}年${parseInt(month)}月`;
+            } else if (type === 'quarter') {
+                const [year, quarter] = value.split('-Q');
+                periodLabel = `${year}年第${parseInt(quarter)}季度`;
+            } else if (type === 'year') {
+                periodLabel = `${value}年`;
+            }
+        } else {
+            periodLabel = t(periodMap[currentPeriod] || 'periodDay');
+        }
 
         container.innerHTML = `
             <div class="summary-section">
@@ -3185,10 +3519,26 @@ function togglePin(id) {
         const completed = ptodos.filter(t => t.completed);
         const remaining = ptodos.filter(t => !t.completed);
         const total = ptodos.length;
-        const pLabels = { past1d:'过去1日', past2d:'过去2日', past3d:'过去3日', pastweek:'过去一周', day:'今日', week:'本周', month:'本月', quarter:'本季', year:'本年' };
+        const pLabels = { past1d:'过去1日', past2d:'过去2日', past3d:'过去3日', day:'今日', week:'本周', month:'本月', quarter:'本季', year:'本年' };
         const now = new Date();
         let dateStr;
-        if (currentPeriod==='day') dateStr=`${now.getFullYear()}年${now.getMonth()+1}月${now.getDate()}日`;
+        if (currentPeriod.includes(':')) {
+            // 新格式: week:2026-W20, month:2026-05, quarter:2026-Q2, year:2026
+            const [type, value] = currentPeriod.split(':');
+            if (type === 'week') {
+                const [year, week] = value.split('-W');
+                const range = getPeriodRange(currentPeriod);
+                dateStr = `${range.start.getMonth()+1}月${range.start.getDate()}日-${range.end.getMonth()+1}月${range.end.getDate()}日`;
+            } else if (type === 'month') {
+                const [year, month] = value.split('-');
+                dateStr = `${year}年${parseInt(month)}月`;
+            } else if (type === 'quarter') {
+                const [year, quarter] = value.split('-Q');
+                dateStr = `${year}年第${parseInt(quarter)}季度`;
+            } else if (type === 'year') {
+                dateStr = `${value}年`;
+            }
+        } else if (currentPeriod==='day') dateStr=`${now.getFullYear()}年${now.getMonth()+1}月${now.getDate()}日`;
         else if (currentPeriod==='week') { const r=getPeriodRange('week'); dateStr=`${r.start.getMonth()+1}月${r.start.getDate()}日-${r.end.getMonth()+1}月${r.end.getDate()}日`; }
         else if (currentPeriod==='month') dateStr=`${now.getFullYear()}年${now.getMonth()+1}月`;
         else if (currentPeriod==='quarter') dateStr=`${now.getFullYear()}年第${Math.floor(now.getMonth()/3)+1}季度`;
